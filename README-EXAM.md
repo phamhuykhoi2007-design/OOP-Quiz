@@ -1,31 +1,39 @@
-# Đề OOP tự sinh: 40 trắc nghiệm + 5 tự luận
+# Đề OOP tự sinh: Chế độ Ôn tập (40 + 5) & Chế độ Làm bài thi 80 phút (50 phân hóa + 5)
 
 ## Chạy
 
 - Nhấn đúp **`Chay-web.bat`**, hoặc mở **`index.html`** trực tiếp.
 - Không cần Internet, API key, cài Node hay AI để sử dụng web.
-- Bộ sinh dựa trên khung bài có tham số, **không gọi AI**: thay đổi tình huống, code, số liệu, công thức và vị trí khuyết trong phạm vi mẫu đã biên soạn. Không phải hệ thống sáng tác mọi dạng bài mới không giới hạn.
+- Bộ sinh và kho câu hỏi hoạt động 100% offline.
 
-## Nội dung và nguồn
+## Kho câu hỏi và quy tắc chống trùng lặp
 
-- **40 câu trắc nghiệm:** tài liệu trong `D:\Học tập\OOP`, 5 chương: tổng quan, lớp/đối tượng, đóng gói, kế thừa, đa hình. Mỗi câu có 4 lựa chọn, 1 đáp án đúng, giải thích và nguồn.
-- **5 bài tự luận đúng form ảnh:** đoạn mô tả, yêu cầu đánh số theo từng lớp, gạch đầu dòng cho từng thuộc tính/hàm, rồi code điền khuyết. Có đủ ba form đóng gói (quản lý sách), kế thừa (nhân viên dùng `is`/ép kiểu) và đa hình (sản phẩm trừu tượng); hai bài còn lại chọn ngẫu nhiên trong ba form. Tên lớp, số liệu và vị trí 60–80 ô khuyết thay đổi, nhưng cấu trúc lớp/hàm/menu và cơ chế OOP giữ đúng ảnh. Nguồn: `C:\Users\Perseus\OneDrive\Desktop\folder chứa file về dạng bài thi`.
-- Hai thư mục nguồn chỉ được dùng khi biên soạn bộ sinh. Sau đó web **không cần truy cập lại** các thư mục này. Thêm tài liệu vào thư mục không tự động cập nhật nội dung web.
-- Không dùng các đáp án người làm nhập sai trong ảnh làm đáp án chuẩn.
+- **Kho 600 câu trắc nghiệm (`ExamMCQ.getBank()`):**
+  - **200 câu Dễ (`easy`)** (40 câu/chương × 5 chương)
+  - **200 câu Trung bình (`medium`)** (40 câu/chương × 5 chương)
+  - **200 câu Khó (`hard`)** (40 câu/chương × 5 chương)
+  - Bám sát 5 chương tài liệu lý thuyết OOP C#: Tổng quan OOP, Lớp và đối tượng, Đóng gói, Kế thừa, Đa hình.
+- **Kho 300 câu tự luận điền khuyết (`ExamEssay.getBank()`):**
+  - **100 câu Đóng gói (`encapsulation`)** + **100 câu Kế thừa (`inheritance`)** + **100 câu Đa hình (`polymorphism`)** trên 75 ngữ cảnh lớp nghiệp vụ.
+  - Giữ đúng 100% form đề ảnh: lời dẫn đầy đủ (`introduction`), hướng dẫn đánh số từng lớp (`sections`) kèm gạch đầu dòng mô tả từng trường/thuộc tính/constructor/phương thức/menu `Main`, và khung chương trình C# có **60–80 ô trống**.
+- **Quy tắc chống trùng lặp:**
+  - Không trùng lặp câu hỏi trong cùng một kho và trong cùng một đề.
+  - Giữa các lần tạo đề thi liên tiếp, hệ thống lưu lịch sử `bankId` đã ra (`recentHistory` và `localStorage`) để không lặp lại câu hỏi cũ cho tới khi kho của nhóm độ khó/form đó được rút hết.
 
-## Làm bài
+## Hai chế độ: Ôn tập & Làm bài thi (80 phút)
 
-1. Trang tự tạo đề khi chưa có bài lưu. **Tạo đề mới** sinh lại đầy đủ 40 + 5; nếu đã làm bài, trang sẽ hỏi trước khi thay đề.
-   Muốn luyện thêm tự luận mà không mất phần trắc nghiệm, bấm **Đổi 5 bài tự luận**. Nút này giữ nguyên 40 câu và câu trả lời trắc nghiệm; chỉ thay phần tự luận, có xác nhận nếu đã điền bài.
-2. Chuyển phần bằng **Trắc nghiệm / Tự luận**; bấm số câu hoặc B1–B5 để nhảy đến bài.
-3. Trắc nghiệm chọn một lựa chọn, bấm **Kiểm tra**. Tự luận điền code vào các ô rồi bấm **Kiểm tra** (hoặc Enter trong ô).
-4. Code được chấm **phân biệt hoa/thường**, giữ nguyên nội dung chuỗi; bỏ qua khoảng trắng giữa các token. Một bài tự luận được tính đúng khi tất cả ô đều đúng.
-5. Sau hai lần kiểm tra sai, có thể **Xem đáp án** và đọc giải thích. Bài đã xem đáp án được ghi riêng, **không tính vào số tự làm đúng**.
-6. **Tổng kết** tách hai phần và cho biết còn bài chưa hoàn thành; vẫn quay lại làm tiếp được. Đây là chế độ luyện tập, không có đồng hồ hay thang điểm thi quy định.
+1. **📖 Ôn tập (`#practiceModeBtn`):**
+   - 40 câu trắc nghiệm (8 câu/chương) + 5 bài tự luận điền khuyết.
+   - Không giới hạn thời gian; kiểm tra từng câu ngay lập tức; cho phép **Xem đáp án** sau 2 lần thử sai; có nút **Đổi 5 bài tự luận** riêng.
+2. **⏱️ Làm bài thi (80 phút) (`#examModeBtn`):**
+   - Giới hạn thời gian **80 phút (`80:00`)** với đồng hồ đếm ngược trực tiếp (tự lưu thời gian còn lại khi tải lại trang và **tự động thu bài, chấm điểm** khi hết giờ, hoặc nộp sớm bằng nút **Nộp bài thi ✓**).
+   - **50 câu trắc nghiệm phân hóa**: đúng **10 câu Dễ + 15 câu Trung bình + 25 câu Khó** lấy từ kho 600 câu, **xếp lộn xộn nhau**.
+   - **5 bài tự luận điền khuyết**: lấy từ kho 300 bài tự luận (đảm bảo đủ cả 3 form Đóng gói, Kế thừa, Đa hình và 5 hệ lớp khác nhau).
+   - Khi nộp bài hoặc hết giờ, hệ thống chấm điểm toàn bộ 55 câu và thống kê chi tiết theo từng mức độ (**Dễ /10 · Trung bình /15 · Khó /25 · Tự luận /5**), đồng thời cho phép xem lại lời giải từng câu.
 
 ## Lưu bài
 
-- Lưu ngay mỗi lần nhập/chọn: nội dung đề, câu đang làm, bản nháp, số lần kiểm tra và trạng thái đúng/xem đáp án. Tải lại trang tiếp tục được.
+- Lưu ngay mỗi lần nhập/chọn: chế độ đang làm, nội dung đề, thời gian còn lại (ở chế độ thi), câu đang làm, bản nháp, số lần kiểm tra và trạng thái đúng/xem đáp án. Tải lại trang tiếp tục được.
 - **Xóa bài làm** chỉ xóa câu trả lời của đề hiện tại, giữ nội dung đề; thao tác có xác nhận.
 - Dữ liệu lưu riêng theo trình duyệt/địa chỉ. Mở file trực tiếp và mở localhost có thể là hai vùng lưu khác nhau. Xóa dữ liệu trình duyệt sẽ mất bài lưu.
 - Nếu trình duyệt chặn lưu trữ, web hiện cảnh báo; vẫn làm được nhưng không bảo đảm giữ bài sau khi đóng trang.
@@ -36,12 +44,12 @@
 
 | File | Chức năng |
 |---|---|
-| `index.html`, `style.css` | Trang và giao diện |
-| `mcq-generators.js` | Bộ sinh 40 câu trắc nghiệm |
-| `essay-generators.js` | Bộ sinh 5 bài tự luận điền khuyết |
-| `exam-core.js` | Xác thực đề, so đáp án, tổng kết, khôi phục bài lưu |
-| `exam-app.js` | Điều hướng, hiển thị, lưu nháp, kiểm tra/xem đáp án |
-| `tests/` | Kiểm thử bộ sinh, chấm bài và trình duyệt |
+| `index.html`, `style.css` | Trang, nút chuyển chế độ Ôn tập / Làm bài thi (80 phút), đồng hồ đếm ngược và giao diện |
+| `mcq-generators.js` | Kho 600 câu trắc nghiệm (200 Dễ + 200 TB + 200 Khó), bộ sinh đề Ôn tập (40 câu) và Đề thi phân hóa (50 câu) |
+| `essay-generators.js` | Kho 300 bài tự luận điền khuyết (100 bài/form × 3 form ảnh) có hướng dẫn đầy đủ |
+| `exam-core.js` | Xác thực đề Ôn tập (40+5) & Đề thi (50+5), chấm bài, thống kê theo độ khó, khôi phục bài lưu |
+| `exam-app.js` | Điều hướng, đồng hồ 80 phút, tự động nộp bài khi hết giờ, lưu nháp, kiểm tra/xem đáp án |
+| `tests/` | Kiểm thử kho 600 TN, kho 300 TL, quy tắc chống trùng lặp, chấm bài và trình duyệt |
 
 Các file `app.js`, `questions.js`, `generators.js` cũ được giữ nguyên nhưng không còn nạp vào trang.
 
