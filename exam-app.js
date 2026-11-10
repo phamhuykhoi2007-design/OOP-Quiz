@@ -298,13 +298,13 @@
     var fmt = $('#examFormatText');
     if (fmt) {
       fmt.textContent = exam
-        ? 'Đề thi 80 phút: 50 TN (10 Dễ · 15 TB · 25 Khó) + 5 TL'
-        : '40 trắc nghiệm + 5 tự luận';
+        ? '50 Trắc nghiệm · 5 Tự luận'
+        : '40 Trắc nghiệm · 5 Tự luận';
     }
     var mcqTab = $('#mcqTab');
     if (mcqTab) {
       mcqTab.textContent = exam
-        ? 'Trắc nghiệm · 50 câu (10 Dễ · 15 TB · 25 Khó)'
+        ? 'Trắc nghiệm · 50 câu'
         : 'Trắc nghiệm · 40 câu';
     }
     var newEssaysBtn = $('#newEssaysBtn');
@@ -322,13 +322,9 @@
     if (isExamMode()) {
       var answeredCount = state.deck.filter(isAnswered).length;
       if (state.submitted) {
-        $('#progressText').textContent = 'Kết quả bài thi: Trắc nghiệm đúng ' + s.mcq.correct + '/50 (Dễ ' +
-          s.byDifficulty.easy.correct + '/10 · TB ' + s.byDifficulty.medium.correct + '/15 · Khó ' +
-          s.byDifficulty.hard.correct + '/25) · Tự luận đúng ' + s.essay.correct + '/5 · Tổng đúng ' +
-          (s.mcq.correct + s.essay.correct) + '/55';
+        $('#progressText').textContent = 'Kết quả bài thi: Trắc nghiệm đúng ' + s.mcq.correct + '/50 · Tự luận đúng ' + s.essay.correct + '/5 · Tổng đúng ' + (s.mcq.correct + s.essay.correct) + '/55';
       } else {
-        $('#progressText').textContent = 'Chế độ Làm bài thi (80 phút) · Đã làm ' + answeredCount + '/55 câu · Trắc nghiệm đã kiểm tra đúng ' +
-          s.mcq.correct + '/50 · Tự luận đúng ' + s.essay.correct + '/5';
+        $('#progressText').textContent = 'Trắc nghiệm đúng ' + s.mcq.correct + '/50 · Tự luận đúng ' + s.essay.correct + '/5 · Đã làm ' + answeredCount + '/55';
       }
     } else {
       $('#progressText').textContent = 'Trắc nghiệm đúng ' + s.mcq.correct + '/' + mTotal + ' · Tự luận đúng ' + s.essay.correct + '/5 · Đã xử lý ' + s.completed + '/' + total;
@@ -363,7 +359,7 @@
     var exam = isExamMode();
     return '<aside class="exam-nav" aria-label="Danh sách câu hỏi">' +
       '<div class="exam-nav-head"><h2>' + (exam ? 'Đề thi 80 phút' : 'Đề ôn tập') + '</h2>' +
-      '<p>' + (exam ? '50 TN phân hóa (10 Dễ · 15 TB · 25 Khó) + 5 TL từ kho 600 TN & 300 TL' : '5 chương · C# · Luyện tập offline (Kho 600 TN & 300 TL)') + '</p></div>' +
+      '<p>' + (exam ? '50 trắc nghiệm phân hóa · 5 tự luận · 80:00' : '40 trắc nghiệm · 5 tự luận · Tự do thời gian') + '</p></div>' +
       '<div class="nav-section-title"><h3>Trắc nghiệm</h3><span class="nav-badge">' + mTotal + ' câu</span></div>' +
       '<div class="question-grid">' +
       state.deck.slice(0, mTotal).map(function (q, i) { return '<button type="button" class="qnav" data-go="' + i + '">' + (i + 1) + '</button>'; }).join('') +

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2.2">
 </head>
 <body>
   <header class="topbar">
@@ -25,7 +25,7 @@
         <button id="examModeBtn" class="modebtn" type="button" aria-pressed="false">⏱️ Làm bài thi (80 phút)</button>
       </div>
       <div class="topbar-right">
-        <span id="examFormatText" class="exam-format">40 trắc nghiệm + 5 tự luận</span>
+        <span id="examFormatText" class="exam-format">40 Trắc nghiệm · 5 Tự luận</span>
         <div id="examTimerBadge" class="timer-badge hidden" role="timer" aria-label="Thời gian còn lại">
           <span class="timer-pulse" aria-hidden="true"></span>
           <span class="timer-icon" aria-hidden="true">⏳</span>
@@ -40,12 +40,14 @@
 
   <div class="exam-toolbar">
     <div class="toolbar-nav-row">
-      <nav class="chapters-inner" aria-label="Phần bài thi">
-        <button class="pill" id="mcqTab" type="button">Trắc nghiệm · 40 câu</button>
-        <button class="pill" id="essayTab" type="button">Tự luận điền khuyết · 5 bài</button>
-        <button class="pill" id="summaryBtn" type="button">Tổng kết</button>
-        <button class="regenbtn" id="newEssaysBtn" type="button">Đổi 5 bài tự luận</button>
-      </nav>
+      <div class="toolbar-nav-group">
+        <nav class="chapters-inner" aria-label="Phần bài thi">
+          <button class="pill" id="mcqTab" type="button">Trắc nghiệm · 40 câu</button>
+          <button class="pill" id="essayTab" type="button">Tự luận điền khuyết · 5 bài</button>
+          <button class="pill" id="summaryBtn" type="button">Tổng kết</button>
+        </nav>
+        <button class="pill pill-action" id="newEssaysBtn" type="button">🔄 Đổi 5 bài tự luận</button>
+      </div>
       <p id="progressText" class="progress-text" aria-live="polite"></p>
     </div>
     <div class="progress-track" aria-hidden="true">

@@ -93,6 +93,7 @@ html, body {
   max-width: 1400px;
   margin: 0 auto;
   padding: 10px 24px;
+  min-height: 62px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -336,6 +337,13 @@ html, body {
   margin-bottom: 12px;
 }
 
+.toolbar-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .chapters-inner {
   display: flex;
   gap: 8px;
@@ -366,6 +374,23 @@ html, body {
   border-color: var(--blue-border);
   color: var(--blue);
   font-weight: 700;
+}
+
+.pill.pill-action {
+  color: var(--blue);
+  background: #f0f7ff;
+  border-color: var(--blue-border);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pill.pill-action:hover {
+  background: #dbeafe;
+  color: var(--blue-hover);
+  border-color: #93c5fd;
+  transform: translateY(-1px);
 }
 
 .progress-text {
@@ -585,6 +610,7 @@ html, body {
 
 .exam-nav .secondary-btn {
   width: 100%;
+  margin-top: 10px;
   padding: 9px;
   font-size: 13.5px;
 }
