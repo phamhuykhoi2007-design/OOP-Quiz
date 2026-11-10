@@ -2649,18 +2649,36 @@
     recentHistory.hard.clear();
   }
 
-  function pickFromBucket(bucket, count, rng, excludedSet, historySet) {
-    var fresh = bucket.filter(function (q) {
+  function pickFromBucket(bucket, count, rng, pickedInCurrentExam, excludedSet, historySet) {
+    var available = bucket.filter(function (q) {
+      return !pickedInCurrentExam.has(q.bankId);
+    });
+
+    // 1. Ưu tiên cấp 1: Chưa có trong cả excludedSet (lịch sử lưu trữ) và historySet (lịch sử phiên)
+    var candidates = available.filter(function (q) {
       return !excludedSet.has(q.bankId) && !historySet.has(q.bankId);
     });
-    if (fresh.length < count) {
-      // Nếu kho của nhóm này đã lấy gần hết qua nhiều đề trước, làm mới lịch sử nhóm này
+
+    // 2. Ưu tiên cấp 2: Nếu không đủ câu, làm mới historySet trong phiên cho nhóm này
+    if (candidates.length < count) {
       bucket.forEach(function (q) { historySet.delete(q.bankId); });
-      fresh = bucket.filter(function (q) { return !excludedSet.has(q.bankId); });
+      candidates = available.filter(function (q) {
+        return !excludedSet.has(q.bankId);
+      });
     }
-    var pool = shuffle(rng, fresh);
+
+    // 3. Ưu tiên cấp 3: Nếu kho qua nhiều lượt thi đã hết sạch câu mới so với excludedSet,
+    // làm mới excludedSet đối với nhóm này để tái sử dụng câu hỏi cũ nhất,
+    // đảm bảo TUYỆT ĐỐI không bao giờ trùng với các câu đã chọn trong đề thi hiện tại!
+    if (candidates.length < count) {
+      bucket.forEach(function (q) { excludedSet.delete(q.bankId); });
+      candidates = available;
+    }
+
+    var pool = shuffle(rng, candidates);
     var picked = pool.slice(0, count);
     picked.forEach(function (q) {
+      pickedInCurrentExam.add(q.bankId);
       excludedSet.add(q.bankId);
       historySet.add(q.bankId);
     });
@@ -2678,6 +2696,7 @@
     var bank = buildBank();
     var excluded = new Set(Array.isArray(options.excludeIds) ? options.excludeIds : []);
     var useHistory = options.trackHistory !== false;
+    var pickedInCurrentExam = new Set();
 
     var specs = [
       { diff: "easy", total: easyTarget },
@@ -2699,7 +2718,7 @@
         var need = basePerChap + (c < rem ? 1 : 0);
         if (need <= 0) continue;
         var bucket = bank.filter(function (q) { return q.difficulty === diff && q.ch === ch; });
-        var got = pickFromBucket(bucket, need, rng, excluded, hist);
+        var got = pickFromBucket(bucket, need, rng, pickedInCurrentExam, excluded, hist);
         rawPicked = rawPicked.concat(got);
       }
     }

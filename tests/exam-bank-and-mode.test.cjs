@@ -200,3 +200,31 @@ test('Giao diện index.html có đủ 2 nút Ôn tập và Làm bài thi (80 ph
   assert.match(html, /id="timerText"[^>]*>80:00</);
   assert.match(html, /id="submitExamBtn"/);
 });
+
+test('Sinh đề thi liên tiếp nhiều vòng (kể cả khi excludeIds tích lũy lớn hơn kho câu hỏi) không bao giờ bị lỗi và luôn đủ 50 TN + 5 TL', () => {
+  let history = { mcq: [], essay: [] };
+  for (let round = 1; round <= 25; round++) {
+    const deck = ExamCore.buildExam(null, {
+      mode: 'exam',
+      easy: 10,
+      medium: 15,
+      hard: 25,
+      fromBank: true,
+      excludeIds: history.mcq.concat(history.essay)
+    });
+    assert.equal(deck.length, 55, `Vòng ${round} phải đủ 55 câu`);
+    const mcqs = deck.slice(0, 50);
+    const essays = deck.slice(50);
+    assert.equal(mcqs.length, 50);
+    assert.equal(essays.length, 5);
+    assert.equal(mcqs.filter(q => q.difficulty === 'easy').length, 10);
+    assert.equal(mcqs.filter(q => q.difficulty === 'medium').length, 15);
+    assert.equal(mcqs.filter(q => q.difficulty === 'hard').length, 25);
+    assert.equal(new Set(deck.map(q => q.id)).size, 55, `Vòng ${round} không được trùng ID`);
+    deck.forEach(q => {
+      if (q.type === 'mcq') history.mcq.push(q.bankId || q.id);
+      else history.essay.push(q.bankId || q.id);
+    });
+  }
+});
+

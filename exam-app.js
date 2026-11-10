@@ -40,8 +40,8 @@
       if (!raw) return { mcq: [], essay: [] };
       var parsed = JSON.parse(raw);
       return {
-        mcq: Array.isArray(parsed && parsed.mcq) ? parsed.mcq : [],
-        essay: Array.isArray(parsed && parsed.essay) ? parsed.essay : []
+        mcq: Array.isArray(parsed && parsed.mcq) ? parsed.mcq.filter(function (x) { return typeof x === 'string'; }) : [],
+        essay: Array.isArray(parsed && parsed.essay) ? parsed.essay.filter(function (x) { return typeof x === 'string'; }) : []
       };
     } catch (e) {
       return { mcq: [], essay: [] };
@@ -59,11 +59,11 @@
         if (q.type === 'mcq') mcqSet.add(bId);
         else if (q.type === 'essay') essaySet.add(bId);
       });
-      // Giữ tối đa 450 câu TN và 250 câu TL trong lịch sử trước khi xoay vòng
+      // Giữ tối đa 200 câu TN (1/3 kho 600) và 100 câu TL (1/3 kho 300) để chống lặp nhưng luôn bảo đảm xoay vòng
       var mcqArr = Array.from(mcqSet);
       var essayArr = Array.from(essaySet);
-      if (mcqArr.length > 450) mcqArr = mcqArr.slice(mcqArr.length - 350);
-      if (essayArr.length > 250) essayArr = essayArr.slice(essayArr.length - 200);
+      if (mcqArr.length > 200) mcqArr = mcqArr.slice(mcqArr.length - 150);
+      if (essayArr.length > 100) essayArr = essayArr.slice(essayArr.length - 75);
       localStorage.setItem(HISTORY_KEY, JSON.stringify({ mcq: mcqArr, essay: essayArr }));
     } catch (e) {
       // Bỏ qua nếu localStorage bị chặn
@@ -235,14 +235,26 @@
       hideNotice();
       if (mode === 'exam') {
         var hist = loadBankHistory();
-        var deckExam = core.buildExam(null, {
-          mode: 'exam',
-          easy: 10,
-          medium: 15,
-          hard: 25,
-          fromBank: true,
-          excludeIds: hist.mcq.concat(hist.essay)
-        });
+        var deckExam;
+        try {
+          deckExam = core.buildExam(null, {
+            mode: 'exam',
+            easy: 10,
+            medium: 15,
+            hard: 25,
+            fromBank: true,
+            excludeIds: hist.mcq.concat(hist.essay)
+          });
+        } catch (innerErr) {
+          deckExam = core.buildExam(null, {
+            mode: 'exam',
+            easy: 10,
+            medium: 15,
+            hard: 25,
+            fromBank: true,
+            excludeIds: []
+          });
+        }
         recordBankHistory(deckExam);
         var dur = core.DURATION_SECONDS || 4800;
         state = {

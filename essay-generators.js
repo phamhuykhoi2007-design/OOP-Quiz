@@ -783,7 +783,12 @@
           return q.formId === form && !usedClasses.has(q.domainClass);
         });
       }
-      var chosen = pick(rng, candidates);
+      if (!candidates.length) {
+        candidates = bank.filter(function (q) {
+          return q.formId === form;
+        });
+      }
+      var chosen = pick(rng, candidates) || bank[0];
       usedClasses.add(chosen.domainClass);
       excluded.add(chosen.bankId);
       if (useHistory) hist.add(chosen.bankId);
