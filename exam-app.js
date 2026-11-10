@@ -10,6 +10,16 @@
   var chapters = { 1: 'Tổng quan OOP', 2: 'Lớp và đối tượng', 3: 'Đóng gói', 4: 'Kế thừa', 5: 'Đa hình' };
   var diffLabels = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' };
 
+  var ICONS = {
+    check: '<svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+    x: '<svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+    arrowLeft: '<svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>',
+    arrowRight: '<svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>',
+    code: '<svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>',
+    moon: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>',
+    sun: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>'
+  };
+
   function $(s) { return document.querySelector(s); }
   function all(s) { return Array.from(document.querySelectorAll(s)); }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
@@ -17,12 +27,17 @@
     return esc(s).replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
   }
   function notice(message) {
-    var el = $('#storageNotice');
-    if (!el) return;
-    el.textContent = message;
-    el.classList.remove('hidden');
+    var box = $('#storageNotice');
+    if (!box) return;
+    var textEl = $('#storageNoticeText');
+    if (textEl) textEl.textContent = message;
+    else box.textContent = message;
+    box.classList.remove('hidden');
   }
-  function hideNotice() { $('#storageNotice').classList.add('hidden'); }
+  function hideNotice() {
+    var box = $('#storageNotice');
+    if (box) box.classList.add('hidden');
+  }
 
   function isExamMode() {
     return !!(state && (state.mode === 'exam' || state.deck.length === 55));
@@ -59,15 +74,12 @@
         if (q.type === 'mcq') mcqSet.add(bId);
         else if (q.type === 'essay') essaySet.add(bId);
       });
-      // Giữ tối đa 200 câu TN (1/3 kho 600) và 100 câu TL (1/3 kho 300) để chống lặp nhưng luôn bảo đảm xoay vòng
       var mcqArr = Array.from(mcqSet);
       var essayArr = Array.from(essaySet);
       if (mcqArr.length > 200) mcqArr = mcqArr.slice(mcqArr.length - 150);
       if (essayArr.length > 100) essayArr = essayArr.slice(essayArr.length - 75);
       localStorage.setItem(HISTORY_KEY, JSON.stringify({ mcq: mcqArr, essay: essayArr }));
-    } catch (e) {
-      // Bỏ qua nếu localStorage bị chặn
-    }
+    } catch (e) {}
   }
 
   function save() {
@@ -298,7 +310,6 @@
 
   function syncModeHeader() {
     var exam = isExamMode();
-    var mTotal = mcqTotal();
     var practiceBtn = $('#practiceModeBtn');
     var examBtn = $('#examModeBtn');
     if (practiceBtn && examBtn) {
@@ -312,6 +323,7 @@
       fmt.textContent = exam
         ? '50 Trắc nghiệm · 5 Tự luận'
         : '40 Trắc nghiệm · 5 Tự luận';
+      fmt.classList.toggle('hidden', exam);
     }
     var mcqTab = $('#mcqTab');
     if (mcqTab) {
@@ -360,17 +372,16 @@
       var i = Number(button.dataset.go), q = state.deck[i], a = state.answers[q.id] || {};
       var label = (q.type === 'mcq' ? 'Câu ' + (i + 1) : 'Bài tự luận ' + (i - mTotal + 1));
       var isAns = isAnswered(q);
+      button.textContent = q.type === 'mcq' ? String(i + 1) : ('B' + (i - mTotal + 1));
       if (isExamMode()) {
         if (state.submitted) {
           button.classList.toggle('oks', a.status === 'ok');
           button.classList.toggle('wrong', a.status === 'revealed');
           button.classList.remove('rev', 'draft');
-          button.textContent = (q.type === 'mcq' ? (i + 1) : 'B' + (i - mTotal + 1)) + (a.status === 'ok' ? ' ✓' : ' ✗');
           button.setAttribute('aria-label', label + (a.status === 'ok' ? ' · đúng' : ' · sai'));
         } else {
           button.classList.remove('oks', 'wrong', 'rev');
           button.classList.toggle('draft', isAns);
-          button.textContent = (q.type === 'mcq' ? (i + 1) : 'B' + (i - mTotal + 1));
           button.setAttribute('aria-label', label + (isAns ? ' · đã làm' : ' · chưa làm'));
         }
       } else {
@@ -378,8 +389,7 @@
         button.classList.toggle('oks', a.status === 'ok');
         button.classList.toggle('rev', a.status === 'revealed');
         button.classList.toggle('draft', !a.status && isAns);
-        button.textContent = (q.type === 'mcq' ? i + 1 : 'B' + (i - mTotal + 1)) + (a.status === 'ok' ? ' ✓' : a.status === 'revealed' ? ' ↗' : '');
-        button.setAttribute('aria-label', label + (a.status === 'ok' ? ' · đúng' : a.status === 'revealed' ? ' · đã xem đáp án' : ' · chưa hoàn thành'));
+        button.setAttribute('aria-label', label + (a.status === 'ok' ? ' · đúng' : a.status === 'revealed' ? ' · đã xem đáp án' : isAns ? ' · đã điền nháp' : ' · chưa hoàn thành'));
       }
       button.classList.toggle('cur', !state.finished && i === state.idx);
       button.setAttribute('aria-current', !state.finished && i === state.idx ? 'step' : 'false');
@@ -392,12 +402,19 @@
     var legendHTML = '';
     if (exam) {
       if (state.submitted) {
-        legendHTML = '<b>✓</b> Đúng &nbsp;·&nbsp; <b>✗</b> Sai<br><span class="leg-dot leg-cur"></span> Đang xem';
+        legendHTML = '<span class="leg-item"><span class="leg-dot leg-ok"></span>Đúng</span>' +
+          '<span class="leg-item"><span class="leg-dot leg-wrong"></span>Sai</span>' +
+          '<span class="leg-item"><span class="leg-dot leg-cur"></span>Đang xem</span>';
       } else {
-        legendHTML = '<span class="leg-dot leg-draft"></span> Đã làm &nbsp;·&nbsp; <span class="leg-dot leg-empty"></span> Chưa làm<br><span class="leg-dot leg-cur"></span> Đang xem';
+        legendHTML = '<span class="leg-item"><span class="leg-dot leg-draft"></span>Đã làm</span>' +
+          '<span class="leg-item"><span class="leg-dot leg-empty"></span>Chưa làm</span>' +
+          '<span class="leg-item"><span class="leg-dot leg-cur"></span>Đang xem</span>';
       }
     } else {
-      legendHTML = '<b>✓</b> Đúng &nbsp;·&nbsp; <b>↗</b> Xem đáp án/Chữa bài<br><span class="leg-dot leg-cur"></span> Đang làm &nbsp;·&nbsp; <span class="leg-dot leg-draft"></span> Đã điền nháp';
+      legendHTML = '<span class="leg-item"><span class="leg-dot leg-ok"></span>Đúng</span>' +
+        '<span class="leg-item"><span class="leg-dot leg-rev"></span>Xem đáp án</span>' +
+        '<span class="leg-item"><span class="leg-dot leg-draft"></span>Nháp</span>' +
+        '<span class="leg-item"><span class="leg-dot leg-cur"></span>Đang làm</span>';
     }
     return '<aside class="exam-nav" aria-label="Danh sách câu hỏi">' +
       '<div class="exam-nav-head"><h2>' + (exam ? 'Đề thi 80 phút' : 'Đề ôn tập') + '</h2>' +
@@ -408,9 +425,45 @@
       '</div><div class="nav-section-title"><h3>Tự luận điền khuyết</h3><span class="nav-badge">5 bài</span></div>' +
       '<div class="question-grid essay-grid">' +
       state.deck.slice(mTotal).map(function (q, i) { return '<button type="button" class="qnav" data-go="' + (mTotal + i) + '">B' + (i + 1) + '</button>'; }).join('') +
-      '</div><div class="nav-legend-box"><p class="nav-legend">' + legendHTML + '</p></div>' +
-      (exam && !state.submitted ? '<button type="button" class="submit-exam-btn nav-submit-btn" data-action="submit-exam">Nộp bài thi ngay ✓</button>' : '') +
+      '</div><div class="nav-legend-box"><p class="nav-legend">' + legendHTML + '</p>' +
+      '<div class="nav-kbd-hint"><span class="kbd-key">1–4</span> chọn · <span class="kbd-key">Enter</span> kiểm tra · <span class="kbd-key">← →</span> đổi câu</div></div>' +
+      (exam && !state.submitted ? '<button type="button" class="submit-exam-btn nav-submit-btn" data-action="submit-exam">' + ICONS.check + '<span>Nộp bài thi ngay</span></button>' : '') +
       '<button type="button" class="secondary-btn" data-action="summary">Xem tổng kết</button></aside>';
+  }
+
+  function updateBlankCounter() {
+    var badge = $('#blankProgress');
+    var jumpBtn = $('#jumpBlankBtn');
+    if (!badge) return;
+    var blanks = all('.blank');
+    if (!blanks.length) return;
+    var filled = blanks.filter(function (el) { return el.value.trim() !== ''; }).length;
+    var wrongCount = blanks.filter(function (el) { return el.classList.contains('bad'); }).length;
+    badge.textContent = filled + '/' + blanks.length + ' ô';
+    if (jumpBtn) {
+      if (wrongCount > 0) {
+        jumpBtn.textContent = 'Ô sai tiếp (' + wrongCount + ')';
+        jumpBtn.classList.remove('hidden');
+      } else if (filled < blanks.length) {
+        jumpBtn.textContent = 'Ô trống tiếp';
+        jumpBtn.classList.remove('hidden');
+      } else {
+        jumpBtn.classList.add('hidden');
+      }
+    }
+  }
+
+  function jumpToNextBlank() {
+    var blanks = all('.blank');
+    if (!blanks.length) return;
+    var wrongBlanks = blanks.filter(function (el) { return el.classList.contains('bad'); });
+    var targets = wrongBlanks.length ? wrongBlanks : blanks.filter(function (el) { return el.value.trim() === ''; });
+    if (!targets.length) return;
+    var active = document.activeElement;
+    var currentIdx = blanks.indexOf(active);
+    var next = targets.find(function (el) { return blanks.indexOf(el) > currentIdx; }) || targets[0];
+    next.focus({ preventScroll: false });
+    next.scrollIntoView({ block: 'center', behavior: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth' });
   }
 
   function questionHTML(q) {
@@ -428,7 +481,7 @@
       '<h1 class="qtitle" id="questionTitle" tabindex="-1">' + escCode(q.title) + '</h1>';
     if (q.type === 'mcq') {
       if (q.code) {
-        html += '<div class="code-box"><div class="code-box-header"><div class="mac-dots"><span class="d-red"></span><span class="d-yellow"></span><span class="d-green"></span></div><span class="code-lang">C# Console</span></div><pre class="codeblock mcq-code"><code>' + esc(q.code) + '</code></pre></div>';
+        html += '<div class="code-box"><div class="code-box-header"><span class="code-file">' + ICONS.code + '<span>Snippet.cs</span></span><span class="code-lang">C# Console</span></div><pre class="codeblock mcq-code"><code>' + esc(q.code) + '</code></pre></div>';
       }
       html += '<fieldset class="mcq-options"><legend>Chọn một đáp án đúng</legend>' + q.options.map(function (option, i) {
         return '<label class="mcq-option" data-opt="' + i + '"><input type="radio" name="choice" value="' + i + '"' + (a.value === i ? ' checked' : '') +
@@ -451,7 +504,7 @@
         (!isExamMode() ? '<button type="button" class="link-btn" data-action="new-essays">Đổi 5 bài tự luận</button>' : '') +
         '</div>' +
         '<p class="input-hint">Điền ' + q.blanks.length + ' ô trống. Phân biệt hoa/thường như C#; bỏ qua khoảng trắng giữa các token. Bản nháp tự lưu khi nhập.</p>' +
-        '<div class="code-box"><div class="code-box-header"><div class="mac-dots"><span class="d-red"></span><span class="d-yellow"></span><span class="d-green"></span></div><span class="code-lang">C# Program.cs</span></div><div class="codeblock essay-code" role="group" aria-label="Chương trình C# cần hoàn thiện">' + q.lines.map(function (line) {
+        '<div class="code-box"><div class="code-box-header"><span class="code-file">' + ICONS.code + '<span>Program.cs</span></span><div class="code-header-actions"><span id="blankProgress" class="blank-counter">0/' + q.blanks.length + ' ô</span><button type="button" id="jumpBlankBtn" class="code-jump-btn" data-action="next-blank">Ô trống tiếp</button></div></div><div class="codeblock essay-code" role="group" aria-label="Chương trình C# cần hoàn thiện">' + q.lines.map(function (line) {
           return '<div class="cl">' + line.map(function (seg) {
             if (typeof seg === 'string') return '<span>' + esc(seg) + '</span>';
             return '<input class="blank" data-b="' + seg.b + '" value="' + esc(a.value[seg.b] || '') +
@@ -460,14 +513,14 @@
         }).join('') + '</div></div>';
     }
     var nextText = (state.idx === total - 1)
-      ? (exam && !state.submitted ? 'Nộp bài thi ✓' : 'Tổng kết')
-      : (state.idx === mTotal - 1 ? 'Sang tự luận →' : 'Câu tiếp →');
+      ? (exam && !state.submitted ? (ICONS.check + '<span>Nộp bài thi</span>') : '<span>Tổng kết</span>' + ICONS.arrowRight)
+      : (state.idx === mTotal - 1 ? '<span>Sang tự luận</span>' + ICONS.arrowRight : '<span>Câu tiếp</span>' + ICONS.arrowRight);
     return html + '<div class="actionrow">' +
       '<button type="button" id="checkBtn" class="primary-btn' + (hideCheckButtons ? ' hidden' : '') + '" data-action="check"' + (hideCheckButtons ? ' style="display:none"' : '') + '>Kiểm tra</button>' +
       '<button type="button" id="revealBtn" class="link-btn hidden" data-action="reveal"' + (hideCheckButtons ? ' style="display:none"' : '') + '>Xem đáp án</button>' +
       '<span id="feedback" class="fb-text" tabindex="-1" role="status" aria-live="polite"></span></div>' +
       '<div id="explain" class="explain hidden"></div><div class="cardfoot">' +
-      '<button type="button" class="backbtn" data-action="back"' + (state.idx === 0 ? ' disabled' : '') + '>← Quay lại</button>' +
+      '<button type="button" class="backbtn" data-action="back"' + (state.idx === 0 ? ' disabled' : '') + '>' + ICONS.arrowLeft + '<span>Quay lại</span></button>' +
       '<button type="button" class="nextbtn" data-action="next">' + nextText + '</button></div></section>';
   }
 
@@ -499,6 +552,7 @@
         }
         input.style.width = Math.min(42, Math.max(8, input.value.length + 2)) + 'ch';
       });
+      updateBlankCounter();
     } else {
       all('.mcq-option').forEach(function (label, i) {
         var input = label.querySelector('input');
@@ -516,13 +570,13 @@
           input.checked = isChosen;
           var isCorrect = (i === q.answer);
           label.classList.toggle('correct-choice', isCorrect);
-          label.classList.toggle('wrong-choice', isChosen && !isCorrect);
+          label.classList.toggle('wrong-choice', isChosen && !isCorrect && (exam || a.status !== 'revealed'));
           if (tag) {
             if (isCorrect) {
-              tag.textContent = '✓ Đáp án đúng';
+              tag.innerHTML = ICONS.check + '<span>Đáp án đúng</span>';
               tag.className = 'opt-tag opt-tag-correct';
-            } else if (isChosen) {
-              tag.textContent = '✗ Lựa chọn của bạn';
+            } else if (isChosen && (exam || a.status !== 'revealed')) {
+              tag.innerHTML = ICONS.x + '<span>Lựa chọn của bạn</span>';
               tag.className = 'opt-tag opt-tag-wrong';
             } else {
               tag.className = 'opt-tag hidden';
@@ -542,7 +596,7 @@
         checkBtn.style.display = '';
         checkBtn.classList.remove('hidden');
         checkBtn.disabled = locked;
-        checkBtn.textContent = a.status === 'ok' ? 'Đã đúng ✓' : a.status === 'revealed' ? 'Đã xem đáp án' : 'Kiểm tra';
+        checkBtn.textContent = a.status === 'ok' ? 'Đã đúng' : a.status === 'revealed' ? 'Đã xem đáp án' : 'Kiểm tra';
       }
       if (revealBtn) {
         revealBtn.style.display = '';
@@ -559,22 +613,22 @@
         feedback.textContent = q.type === 'mcq'
           ? 'Chưa đúng — hãy thử lại.'
           : 'Đúng ' + core.check(q, a.value).fields.filter(Boolean).length + '/' + q.blanks.length + ' ô. Ô sai có viền đỏ; hãy kiểm tra hoa/thường.';
-      } else if (!exam && a.status === 'ok') {
-        feedback.className = 'fb-text ok';
-        feedback.textContent = 'Chính xác! ✓';
       }
+    } else if (!exam && a.status === 'revealed') {
+      feedback.className = 'fb-text';
+      feedback.textContent = 'Đã hiện đáp án; không tính là tự làm đúng.';
     } else {
       if (q.type === 'mcq') {
         var uChoice = (a.userValue !== undefined) ? a.userValue : a.value;
         if (uChoice === q.answer) {
           feedback.className = 'fb-text ok';
-          feedback.textContent = 'Chính xác! ✓ Bạn đã chọn đúng đáp án ' + 'ABCD'[q.answer] + '.';
+          feedback.innerHTML = ICONS.check + '<span>Chính xác! Bạn đã chọn đúng đáp án ' + 'ABCD'[q.answer] + '.</span>';
         } else if (uChoice !== null && uChoice !== undefined) {
           feedback.className = 'fb-text bad';
-          feedback.textContent = 'Chưa chính xác: Bạn đã chọn ' + 'ABCD'[uChoice] + ' (sai); đáp án đúng là ' + 'ABCD'[q.answer] + '.';
+          feedback.innerHTML = ICONS.x + '<span>Chưa chính xác: Bạn đã chọn ' + 'ABCD'[uChoice] + '; đáp án đúng là ' + 'ABCD'[q.answer] + '.</span>';
         } else {
           feedback.className = 'fb-text bad';
-          feedback.textContent = 'Chưa chọn đáp án khi nộp bài; đáp án đúng là ' + 'ABCD'[q.answer] + '.';
+          feedback.innerHTML = ICONS.x + '<span>Chưa chọn đáp án khi nộp bài; đáp án đúng là ' + 'ABCD'[q.answer] + '.</span>';
         }
       } else {
         var uVal = (a.userValue !== undefined) ? a.userValue : a.value;
@@ -582,10 +636,10 @@
         var corCount = chk.fields.filter(Boolean).length;
         if (corCount === q.blanks.length) {
           feedback.className = 'fb-text ok';
-          feedback.textContent = 'Chính xác! ✓ Bạn đã làm đúng toàn bộ ' + q.blanks.length + '/' + q.blanks.length + ' ô trống.';
+          feedback.innerHTML = ICONS.check + '<span>Chính xác! Bạn đã làm đúng toàn bộ ' + q.blanks.length + '/' + q.blanks.length + ' ô trống.</span>';
         } else {
           feedback.className = 'fb-text bad';
-          feedback.textContent = 'Kết quả tự luận: Đúng ' + corCount + '/' + q.blanks.length + ' ô. Các ô sai hoặc chưa điền được đánh dấu viền đỏ.';
+          feedback.innerHTML = ICONS.x + '<span>Kết quả tự luận: Đúng ' + corCount + '/' + q.blanks.length + ' ô. Các ô sai hoặc chưa điền được đánh dấu viền đỏ.</span>';
         }
       }
     }
@@ -593,17 +647,17 @@
     var explainBox = $('#explain');
     explainBox.classList.toggle('hidden', !locked);
     if (locked) {
-      var uVal = (a.userValue !== undefined) ? a.userValue : a.value;
-      var chk = core.check(q, uVal);
+      var expVal = (a.userValue !== undefined) ? a.userValue : a.value;
+      var expChk = core.check(q, expVal);
       var essayDetail = '';
       if (q.type === 'essay') {
         essayDetail = '<div class="essay-review-panel"><h4>Đối chiếu chi tiết từng ô điền khuyết:</h4><ol class="essay-review-list">' +
           q.blanks.map(function (b, idx) {
-            var val = (uVal && uVal[idx]) ? uVal[idx] : '(chưa điền)';
-            var isOk = chk.fields[idx];
+            var val = (expVal && expVal[idx]) ? expVal[idx] : '(chưa điền)';
+            var isOk = expChk.fields[idx];
             return '<li class="' + (isOk ? 'blank-ok' : 'blank-bad') + '">' +
               '<strong>Ô ' + (idx + 1) + ':</strong> Bạn điền: <code class="user-code">' + esc(val) + '</code> ' +
-              (isOk ? '<span class="tag-ok">✓ Đúng</span>' : '<span class="tag-bad">✗ Chưa đúng</span> — Đáp án đúng: <code class="key-code">' + esc(b.ok[0]) + '</code>') +
+              (isOk ? '<span class="tag-ok">' + ICONS.check + 'Đúng</span>' : '<span class="tag-bad">' + ICONS.x + 'Chưa đúng</span> — Đáp án đúng: <code class="key-code">' + esc(b.ok[0]) + '</code>') +
               (b.explain ? ' <em>(' + esc(b.explain) + ')</em>' : '') +
               '</li>';
           }).join('') + '</ol></div>';
@@ -629,38 +683,62 @@
       if (!state.submitted) {
         return '<section class="card finish"><h1 id="questionTitle" tabindex="-1">Tổng kết tạm thời (Chưa nộp bài)</h1>' +
           '<p>Đã làm <b>' + answeredCount + '/55</b> câu (' + mcqAns + '/50 trắc nghiệm, ' + essayAns + '/5 tự luận). Còn lại ' + (55 - answeredCount) + ' câu chưa làm và còn <b>' + formatTime(rem) + '</b> thời gian làm bài.</p>' +
+          '<div class="summary-kpi-strip">' +
+          '<div class="kpi-cell kpi-lead"><div class="kpi-label">Tiến độ đã làm</div><div class="kpi-value">' + answeredCount + '/55</div><div class="kpi-sub">' + Math.round(answeredCount / 55 * 100) + '% toàn đề</div></div>' +
+          '<div class="kpi-cell"><div class="kpi-label">Trắc nghiệm</div><div class="kpi-value">' + mcqAns + '/50</div><div class="kpi-sub">Đã chọn đáp án</div></div>' +
+          '<div class="kpi-cell"><div class="kpi-label">Thời gian còn lại</div><div class="kpi-value">' + formatTime(rem) + '</div><div class="kpi-sub">Tự luận đã điền ' + essayAns + '/5</div></div>' +
+          '</div>' +
           '<div class="chapsum"><p>Đề thi sẽ được chấm điểm toàn bộ sau khi bạn bấm <b>“Nộp bài thi ngay”</b> hoặc khi hết thời gian 80 phút. Sau khi nộp bài, bạn có thể xem lại chi tiết từng câu để biết rõ chỗ nào mình đúng, chỗ nào mình sai cùng lời giải thích chi tiết.</p></div>' +
           '<div class="fin-btns">' +
           '<button type="button" class="primary-btn" data-action="continue">Quay lại làm bài</button>' +
-          '<button type="button" class="submit-exam-btn" data-action="submit-exam">Nộp bài thi ngay ✓</button>' +
-          '<button type="button" class="regenbtn" data-action="new">Tạo đề thi mới 🎲</button>' +
+          '<button type="button" class="submit-exam-btn" data-action="submit-exam">' + ICONS.check + '<span>Nộp bài thi ngay</span></button>' +
+          '<button type="button" class="regenbtn" data-action="new">Tạo đề thi mới</button>' +
           '</div></section>';
       }
 
       var title = state.submittedReason === 'timeout' ? 'Kết quả bài thi (Hết giờ 80 phút)' : 'Kết quả bài thi (Đã nộp bài)';
-      var statusNote = 'Thời gian làm bài: ' + formatTime(spent) + ' / 80:00 · Bạn có thể bấm “Xem lại bài làm” hoặc chọn từng câu ở cột trái để xem chi tiết chỗ đúng, chỗ sai cùng giải thích chi tiết.';
+      var statusNote = 'Thời gian làm bài: ' + formatTime(spent) + ' / 80:00 · Bạn có thể bấm “Xem lại bài làm” hoặc chọn từng câu ở danh sách câu hỏi để xem chi tiết chỗ đúng, chỗ sai cùng giải thích.';
+      var totalCorrect = s.mcq.correct + s.essay.correct;
+      var mcqPct = Math.round(s.mcq.correct / 50 * 100);
+      var totalPct = Math.round(totalCorrect / 55 * 100);
       return '<section class="card finish"><h1 id="questionTitle" tabindex="-1">' + esc(title) + '</h1>' +
         '<p>' + esc(statusNote) + '</p>' +
+        '<div class="summary-kpi-strip">' +
+        '<div class="kpi-cell kpi-lead"><div class="kpi-label">Tổng điểm đúng</div><div class="kpi-value">' + totalCorrect + '/55</div><div class="kpi-sub">Tỉ lệ đúng ' + totalPct + '%</div></div>' +
+        '<div class="kpi-cell"><div class="kpi-label">Trắc nghiệm</div><div class="kpi-value">' + s.mcq.correct + '/50</div><div class="kpi-sub">' + mcqPct + '% chính xác</div></div>' +
+        '<div class="kpi-cell"><div class="kpi-label">Tự luận điền khuyết</div><div class="kpi-value">' + s.essay.correct + '/5</div><div class="kpi-sub">Thời gian ' + formatTime(spent) + '</div></div>' +
+        '</div>' +
         '<div class="chapsum"><h2>Trắc nghiệm phân hóa (50 câu)</h2>' +
-        '<p>Tổng trắc nghiệm đúng: <b>' + s.mcq.correct + '/50</b> (' + Math.round(s.mcq.correct / 50 * 100) + '%)</p>' +
+        '<p>Tổng trắc nghiệm đúng: <b>' + s.mcq.correct + '/50</b> (' + mcqPct + '%)</p>' +
+        '<div class="summary-bar-track" aria-hidden="true"><div class="summary-bar-fill" style="width:' + mcqPct + '%"></div></div>' +
         '<ul class="diff-breakdown">' +
-        '<li><span class="diff-chip diff-easy">Mức Dễ (10 câu)</span> <b>' + s.byDifficulty.easy.correct + '/10</b> câu đúng</li>' +
-        '<li><span class="diff-chip diff-medium">Mức Trung bình (15 câu)</span> <b>' + s.byDifficulty.medium.correct + '/15</b> câu đúng</li>' +
-        '<li><span class="diff-chip diff-hard">Mức Khó (25 câu)</span> <b>' + s.byDifficulty.hard.correct + '/25</b> câu đúng</li>' +
+        '<li><span class="diff-chip diff-easy">Mức Dễ (10 câu)</span><span class="diff-score"><b>' + s.byDifficulty.easy.correct + '/10</b> câu đúng</span></li>' +
+        '<li><span class="diff-chip diff-medium">Mức Trung bình (15 câu)</span><span class="diff-score"><b>' + s.byDifficulty.medium.correct + '/15</b> câu đúng</span></li>' +
+        '<li><span class="diff-chip diff-hard">Mức Khó (25 câu)</span><span class="diff-score"><b>' + s.byDifficulty.hard.correct + '/25</b> câu đúng</span></li>' +
         '</ul>' +
         '<h2>Tự luận điền khuyết (5 bài trong kho 300 câu)</h2>' +
         '<p>Tự làm đúng toàn bài: <b>' + s.essay.correct + '/5</b></p>' +
-        '<p>Tổng đúng: <b>' + (s.mcq.correct + s.essay.correct) + '/55</b> câu (' + Math.round((s.mcq.correct + s.essay.correct) / 55 * 100) + '%)</p></div>' +
+        '<div class="summary-bar-track" aria-hidden="true"><div class="summary-bar-fill fill-green" style="width:' + Math.round(s.essay.correct / 5 * 100) + '%"></div></div>' +
+        '<p>Tổng đúng: <b>' + totalCorrect + '/55</b> câu (' + totalPct + '%)</p></div>' +
         '<div class="fin-btns"><button type="button" class="primary-btn" data-action="continue">Xem lại bài làm (chi tiết từng câu)</button>' +
-        '<button type="button" class="regenbtn" data-action="new">Tạo đề thi mới 🎲</button></div></section>';
+        '<button type="button" class="regenbtn" data-action="new">Tạo đề thi mới</button></div></section>';
     }
+    var pracMcqPct = Math.round(s.mcq.correct / mTotal * 100);
+    var pracEssayPct = Math.round(s.essay.correct / 5 * 100);
     return '<section class="card finish"><h1 id="questionTitle" tabindex="-1">' + (s.completed === total ? 'Tổng kết đề luyện tập' : 'Tổng kết hiện tại') + '</h1>' +
       '<p>' + (total - s.completed ? 'Còn ' + (total - s.completed) + ' câu/bài chưa hoàn thành. Bạn có thể quay lại làm tiếp.' : 'Bạn đã xử lý đủ ' + mTotal + ' câu trắc nghiệm và 5 bài tự luận.') + '</p>' +
-      '<div class="chapsum"><h2>Trắc nghiệm</h2><p>Tự làm đúng <b>' + s.mcq.correct + '/' + mTotal + '</b> (' + Math.round(s.mcq.correct / mTotal * 100) + '%) · Xem đáp án: ' + s.mcq.revealed + '</p>' +
-      '<h2>Tự luận điền khuyết</h2><p>Tự làm đúng toàn bài <b>' + s.essay.correct + '/5</b> · Xem đáp án: ' + s.essay.revealed + '</p>' +
+      '<div class="summary-kpi-strip">' +
+      '<div class="kpi-cell kpi-lead"><div class="kpi-label">Đã hoàn thành</div><div class="kpi-value">' + s.completed + '/' + total + '</div><div class="kpi-sub">' + Math.round(s.completed / total * 100) + '% toàn đề</div></div>' +
+      '<div class="kpi-cell"><div class="kpi-label">Trắc nghiệm đúng</div><div class="kpi-value">' + s.mcq.correct + '/' + mTotal + '</div><div class="kpi-sub">Xem đáp án: ' + s.mcq.revealed + '</div></div>' +
+      '<div class="kpi-cell"><div class="kpi-label">Tự luận đúng</div><div class="kpi-value">' + s.essay.correct + '/5</div><div class="kpi-sub">Xem đáp án: ' + s.essay.revealed + '</div></div>' +
+      '</div>' +
+      '<div class="chapsum"><h2>Trắc nghiệm</h2><p>Tự làm đúng <b>' + s.mcq.correct + '/' + mTotal + '</b> (' + pracMcqPct + '%) · Xem đáp án: ' + s.mcq.revealed + '</p>' +
+      '<div class="summary-bar-track" aria-hidden="true"><div class="summary-bar-fill" style="width:' + pracMcqPct + '%"></div></div>' +
+      '<h2>Tự luận điền khuyết</h2><p>Tự làm đúng toàn bài <b>' + s.essay.correct + '/5</b> (' + pracEssayPct + '%) · Xem đáp án: ' + s.essay.revealed + '</p>' +
+      '<div class="summary-bar-track" aria-hidden="true"><div class="summary-bar-fill fill-green" style="width:' + pracEssayPct + '%"></div></div>' +
       '<p>Đáp án đã xem không được tính vào số câu tự làm đúng.</p></div>' +
       '<div class="fin-btns"><button type="button" class="primary-btn" data-action="continue">Quay lại bài làm</button>' +
-      '<button type="button" class="regenbtn" data-action="new">Tạo đề mới 🎲</button></div></section>';
+      '<button type="button" class="regenbtn" data-action="new">Tạo đề mới</button></div></section>';
   }
 
   function render(focus) {
@@ -694,10 +772,7 @@
     var toggleBtn = $('#themeToggleBtn');
     if (!toggleBtn) return;
     var iconEl = toggleBtn.querySelector('.theme-icon');
-
-    function getSystemTheme() {
-      return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-    }
+    var metaEl = $('#themeColorMeta');
 
     function currentTheme() {
       return document.documentElement.getAttribute('data-theme') || 'light';
@@ -706,7 +781,10 @@
     function syncUI(theme) {
       var isDark = theme === 'dark';
       if (iconEl) {
-        iconEl.textContent = isDark ? '☀️' : '🌙';
+        iconEl.innerHTML = isDark ? ICONS.sun : ICONS.moon;
+      }
+      if (metaEl) {
+        metaEl.setAttribute('content', isDark ? '#0c1018' : '#f6f7f9');
       }
       var label = isDark ? 'Chuyển sang giao diện sáng (Alt + T)' : 'Chuyển sang giao diện tối (Alt + T)';
       toggleBtn.setAttribute('aria-label', label);
@@ -714,7 +792,11 @@
     }
 
     function setTheme(theme, saveUserChoice) {
-      document.documentElement.setAttribute('data-theme', theme);
+      var rootEl = document.documentElement;
+      rootEl.setAttribute('data-theme-switching', 'true');
+      rootEl.setAttribute('data-theme', theme);
+      void rootEl.offsetHeight;
+      rootEl.removeAttribute('data-theme-switching');
       if (saveUserChoice) {
         try {
           localStorage.setItem(THEME_KEY, theme);
@@ -723,22 +805,11 @@
       syncUI(theme);
     }
 
-    // Initial sync
-    var activeTheme = currentTheme();
-    syncUI(activeTheme);
+    syncUI(currentTheme());
 
     toggleBtn.addEventListener('click', function () {
       var next = currentTheme() === 'dark' ? 'light' : 'dark';
       setTheme(next, true);
-    });
-
-    // Keyboard shortcut: Alt + T
-    window.addEventListener('keydown', function (e) {
-      if (e.altKey && !e.ctrlKey && !e.metaKey && (e.key === 't' || e.key === 'T')) {
-        e.preventDefault();
-        var next = currentTheme() === 'dark' ? 'light' : 'dark';
-        setTheme(next, true);
-      }
     });
 
     if (window.matchMedia) {
@@ -753,11 +824,18 @@
         });
       } catch (e) {}
     }
+
+    return {
+      toggle: function () {
+        var next = currentTheme() === 'dark' ? 'light' : 'dark';
+        setTheme(next, true);
+      }
+    };
   }
 
   document.addEventListener('DOMContentLoaded', function () {
     app = $('#app');
-    initTheme();
+    var themeCtrl = initTheme();
     try {
       var raw = localStorage.getItem(KEY);
       state = core.restore(raw);
@@ -774,9 +852,21 @@
     var practiceBtn = $('#practiceModeBtn');
     var examBtn = $('#examModeBtn');
     var submitExamBtn = $('#submitExamBtn');
+    var closeNoticeBtn = $('#closeNoticeBtn');
+    var jumpNavBtn = $('#jumpNavBtn');
+
     if (practiceBtn) practiceBtn.addEventListener('click', function () { switchMode('practice'); });
     if (examBtn) examBtn.addEventListener('click', function () { switchMode('exam'); });
     if (submitExamBtn) submitExamBtn.addEventListener('click', function () { submitExam('manual'); });
+    if (closeNoticeBtn) closeNoticeBtn.addEventListener('click', hideNotice);
+    if (jumpNavBtn) {
+      jumpNavBtn.addEventListener('click', function () {
+        var nav = $('.exam-nav');
+        if (!nav) return;
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        nav.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      });
+    }
 
     $('#newExamBtn').addEventListener('click', function () { newExam(true, isExamMode() ? 'exam' : 'practice'); });
     $('#newEssaysBtn').addEventListener('click', newEssays);
@@ -805,6 +895,7 @@
       switch (button.dataset.action) {
         case 'check': check(); break;
         case 'reveal': reveal(); break;
+        case 'next-blank': jumpToNextBlank(); break;
         case 'back': if (state.idx > 0) go(state.idx - 1); break;
         case 'next':
           if (state.idx < deckTotal() - 1) {
@@ -830,6 +921,7 @@
         a.value[Number(input.dataset.b)] = input.value;
         input.classList.remove('bad', 'ok'); input.setAttribute('aria-invalid', 'false');
         input.style.width = Math.min(42, Math.max(8, input.value.length + 2)) + 'ch';
+        updateBlankCounter();
       } else return;
       save(); progress();
     });
@@ -837,6 +929,46 @@
       if (event.key === 'Enter' && event.target.matches('.blank') && !state.finished) {
         event.preventDefault();
         if (!isExamMode() && !answer(current()).status) check();
+      }
+    });
+
+    window.addEventListener('keydown', function (event) {
+      if (event.altKey && !event.ctrlKey && !event.metaKey && (event.key === 't' || event.key === 'T')) {
+        event.preventDefault();
+        if (themeCtrl) themeCtrl.toggle();
+        return;
+      }
+      if (!state || state.finished || event.ctrlKey || event.altKey || event.metaKey) return;
+      var target = event.target;
+      var el = (target && target.nodeType === 1) ? target : null;
+      if (el && el.matches('input[type="text"], input:not([type]), textarea, select, [contenteditable]')) return;
+
+      var q = current();
+      if (q && q.type === 'mcq') {
+        var exam = isExamMode();
+        var a = answer(q);
+        var locked = !exam ? !!a.status : !!state.submitted;
+        var keyLower = String(event.key || '').toLowerCase();
+        var optIdx = { '1': 0, '2': 1, '3': 2, '4': 3, 'a': 0, 'b': 1, 'c': 2, 'd': 3 }[keyLower];
+        if (optIdx !== undefined && !locked && optIdx < q.options.length) {
+          event.preventDefault();
+          a.value = optIdx;
+          save();
+          paintAnswer(false);
+          return;
+        }
+      }
+      if (event.key === 'ArrowLeft' && state.idx > 0) {
+        event.preventDefault();
+        go(state.idx - 1);
+      } else if (event.key === 'ArrowRight' && state.idx < deckTotal() - 1) {
+        event.preventDefault();
+        go(state.idx + 1);
+      } else if (event.key === 'Enter' && (!el || !el.closest('button, a, label, summary, [role="button"], input'))) {
+        if (!isExamMode() && !answer(current()).status) {
+          event.preventDefault();
+          check();
+        }
       }
     });
   });

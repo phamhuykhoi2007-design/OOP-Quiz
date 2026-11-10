@@ -2,12 +2,14 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" id="themeColorMeta" content="#f6f7f9">
+<meta name="color-scheme" content="light dark">
 <title>Ôn tập & Thi thử Lập trình hướng đối tượng (C#)</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%8E%93%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231d4ed8'/%3E%3Cpath d='M12 10L6 16l6 6M20 10l6 6-6 6M17.5 9l-3 14' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script>
   (function () {
     try {
@@ -15,37 +17,40 @@
       var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       var theme = saved || (prefersDark ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', theme);
+      var meta = document.getElementById('themeColorMeta');
+      if (meta) meta.setAttribute('content', theme === 'dark' ? '#0c1018' : '#f6f7f9');
     } catch (e) {}
   })();
 </script>
-<link rel="stylesheet" href="style.css?v=2.4">
+<link rel="stylesheet" href="style.css?v=3.0">
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
-        <span class="brand-badge"><span class="brand-emoji">🎓</span></span>
+        <span class="brand-badge" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline><line x1="14" y1="4" x2="10" y2="20"></line></svg>
+        </span>
         <div class="brand-text">
           <span class="brand-name">Ôn tập <b>Lập trình hướng đối tượng</b></span>
           <span class="brand-sub">C# · Kho 600 TN &amp; 300 Tự luận</span>
         </div>
       </div>
       <div class="modeswitch" role="group" aria-label="Chế độ học tập">
-        <button id="practiceModeBtn" class="modebtn active" type="button" aria-pressed="true">📖 Ôn tập</button>
-        <button id="examModeBtn" class="modebtn" type="button" aria-pressed="false">⏱️ Làm bài thi (80 phút)</button>
+        <button id="practiceModeBtn" class="modebtn active" type="button" aria-pressed="true"><svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span>Ôn tập</span></button>
+        <button id="examModeBtn" class="modebtn" type="button" aria-pressed="false"><svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>Làm bài thi (80 phút)</span></button>
       </div>
       <div class="topbar-right">
         <span id="examFormatText" class="exam-format">40 Trắc nghiệm · 5 Tự luận</span>
         <div id="examTimerBadge" class="timer-badge hidden" role="timer" aria-label="Thời gian còn lại">
-          <span class="timer-pulse" aria-hidden="true"></span>
-          <span class="timer-icon" aria-hidden="true">⏳</span>
+          <svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3L2 6"></path><path d="M22 6l-3-3"></path><line x1="12" y1="2" x2="12" y2="5"></line></svg>
           <span id="timerText">80:00</span>
         </div>
-        <button id="submitExamBtn" class="submit-exam-btn hidden" type="button">Nộp bài thi ✓</button>
-        <button id="newExamBtn" class="regenbtn" type="button">Tạo đề mới 🎲</button>
+        <button id="submitExamBtn" class="submit-exam-btn hidden" type="button"><svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Nộp bài thi</span></button>
+        <button id="newExamBtn" class="regenbtn" type="button"><svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg><span>Tạo đề mới</span></button>
         <button id="clearBtn" class="ghost-btn" type="button">Xóa bài làm</button>
         <button id="themeToggleBtn" class="theme-toggle-btn" type="button" aria-label="Chuyển chế độ sáng/tối (Alt + T)" title="Chuyển chế độ sáng/tối (Alt + T)">
-          <span class="theme-icon" aria-hidden="true">🌙</span>
+          <span class="theme-icon" aria-hidden="true"></span>
         </button>
       </div>
     </div>
@@ -59,15 +64,24 @@
           <button class="pill" id="essayTab" type="button">Tự luận điền khuyết · 5 bài</button>
           <button class="pill" id="summaryBtn" type="button">Tổng kết</button>
         </nav>
-        <button class="pill pill-action" id="newEssaysBtn" type="button">🔄 Đổi 5 bài tự luận</button>
+        <button class="pill pill-action" id="newEssaysBtn" type="button"><svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg><span>Đổi 5 bài tự luận</span></button>
       </div>
-      <p id="progressText" class="progress-text" aria-live="polite"></p>
+      <div class="toolbar-meta">
+        <button class="pill pill-jump" id="jumpNavBtn" type="button"><svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>Danh sách câu</span></button>
+        <p id="progressText" class="progress-text" aria-live="polite"></p>
+      </div>
     </div>
     <div class="progress-track" aria-hidden="true">
       <div id="examProgressBar" class="progress-fill" style="width: 0%"></div>
     </div>
   </div>
-  <p id="storageNotice" class="storage-notice hidden" role="status"></p>
+
+  <div id="storageNotice" class="storage-notice hidden" role="status">
+    <span id="storageNoticeText" class="storage-notice-text"></span>
+    <button id="closeNoticeBtn" class="notice-close-btn" type="button" aria-label="Đóng thông báo">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+  </div>
 
   <main id="app"></main>
 
