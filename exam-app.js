@@ -689,8 +689,75 @@
     a.status = 'revealed'; save(); paintAnswer(false); $('#feedback').focus({ preventScroll: true });
   }
 
+  function initTheme() {
+    var THEME_KEY = 'oopQuiz.theme';
+    var toggleBtn = $('#themeToggleBtn');
+    if (!toggleBtn) return;
+    var iconEl = toggleBtn.querySelector('.theme-icon');
+
+    function getSystemTheme() {
+      return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+
+    function currentTheme() {
+      return document.documentElement.getAttribute('data-theme') || 'light';
+    }
+
+    function syncUI(theme) {
+      var isDark = theme === 'dark';
+      if (iconEl) {
+        iconEl.textContent = isDark ? '☀️' : '🌙';
+      }
+      var label = isDark ? 'Chuyển sang giao diện sáng (Alt + T)' : 'Chuyển sang giao diện tối (Alt + T)';
+      toggleBtn.setAttribute('aria-label', label);
+      toggleBtn.setAttribute('title', label);
+    }
+
+    function setTheme(theme, saveUserChoice) {
+      document.documentElement.setAttribute('data-theme', theme);
+      if (saveUserChoice) {
+        try {
+          localStorage.setItem(THEME_KEY, theme);
+        } catch (e) {}
+      }
+      syncUI(theme);
+    }
+
+    // Initial sync
+    var activeTheme = currentTheme();
+    syncUI(activeTheme);
+
+    toggleBtn.addEventListener('click', function () {
+      var next = currentTheme() === 'dark' ? 'light' : 'dark';
+      setTheme(next, true);
+    });
+
+    // Keyboard shortcut: Alt + T
+    window.addEventListener('keydown', function (e) {
+      if (e.altKey && !e.ctrlKey && !e.metaKey && (e.key === 't' || e.key === 'T')) {
+        e.preventDefault();
+        var next = currentTheme() === 'dark' ? 'light' : 'dark';
+        setTheme(next, true);
+      }
+    });
+
+    if (window.matchMedia) {
+      try {
+        var mql = window.matchMedia('(prefers-color-scheme: dark)');
+        mql.addEventListener('change', function (e) {
+          try {
+            if (!localStorage.getItem(THEME_KEY)) {
+              setTheme(e.matches ? 'dark' : 'light', false);
+            }
+          } catch (err) {}
+        });
+      } catch (e) {}
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     app = $('#app');
+    initTheme();
     try {
       var raw = localStorage.getItem(KEY);
       state = core.restore(raw);

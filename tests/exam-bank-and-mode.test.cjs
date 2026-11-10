@@ -201,6 +201,13 @@ test('Giao diện index.html có đủ 2 nút Ôn tập và Làm bài thi (80 ph
   assert.match(html, /id="submitExamBtn"/);
 });
 
+test('Giao diện index.html có nút chuyển chế độ sáng/tối và script chống FOUT', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  assert.match(html, /id="themeToggleBtn"/);
+  assert.match(html, /data-theme/);
+  assert.match(html, /oopQuiz\.theme/);
+});
+
 test('Sinh đề thi liên tiếp nhiều vòng (kể cả khi excludeIds tích lũy lớn hơn kho câu hỏi) không bao giờ bị lỗi và luôn đủ 50 TN + 5 TL', () => {
   let history = { mcq: [], essay: [] };
   for (let round = 1; round <= 25; round++) {

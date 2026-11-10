@@ -8,7 +8,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2.3">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('oopQuiz.theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) {}
+  })();
+</script>
+<link rel="stylesheet" href="style.css?v=2.4">
 </head>
 <body>
   <header class="topbar">
@@ -34,6 +44,9 @@
         <button id="submitExamBtn" class="submit-exam-btn hidden" type="button">Nộp bài thi ✓</button>
         <button id="newExamBtn" class="regenbtn" type="button">Tạo đề mới 🎲</button>
         <button id="clearBtn" class="ghost-btn" type="button">Xóa bài làm</button>
+        <button id="themeToggleBtn" class="theme-toggle-btn" type="button" aria-label="Chuyển chế độ sáng/tối (Alt + T)" title="Chuyển chế độ sáng/tối (Alt + T)">
+          <span class="theme-icon" aria-hidden="true">🌙</span>
+        </button>
       </div>
     </div>
   </header>
