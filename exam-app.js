@@ -336,14 +336,17 @@
       if (state.submitted) {
         $('#progressText').textContent = 'Kết quả bài thi: Trắc nghiệm đúng ' + s.mcq.correct + '/50 · Tự luận đúng ' + s.essay.correct + '/5 · Tổng đúng ' + (s.mcq.correct + s.essay.correct) + '/55';
       } else {
-        $('#progressText').textContent = 'Trắc nghiệm đúng ' + s.mcq.correct + '/50 · Tự luận đúng ' + s.essay.correct + '/5 · Đã làm ' + answeredCount + '/55';
+        var mcqAns = state.deck.slice(0, 50).filter(isAnswered).length;
+        var essayAns = state.deck.slice(50).filter(isAnswered).length;
+        $('#progressText').textContent = 'Trắc nghiệm đã làm ' + mcqAns + '/50 · Tự luận đã làm ' + essayAns + '/5 · Đã làm ' + answeredCount + '/55';
       }
     } else {
       $('#progressText').textContent = 'Trắc nghiệm đúng ' + s.mcq.correct + '/' + mTotal + ' · Tự luận đúng ' + s.essay.correct + '/5 · Đã xử lý ' + s.completed + '/' + total;
     }
     var pBar = $('#examProgressBar');
     if (pBar) {
-      var pct = total > 0 ? Math.round((s.completed / total) * 100) : 0;
+      var countForBar = (isExamMode() && !state.submitted) ? state.deck.filter(isAnswered).length : s.completed;
+      var pct = total > 0 ? Math.round((countForBar / total) * 100) : 0;
       pBar.style.width = pct + '%';
       pBar.setAttribute('aria-valuenow', pct);
     }
@@ -356,19 +359,46 @@
     all('[data-go]').forEach(function (button) {
       var i = Number(button.dataset.go), q = state.deck[i], a = state.answers[q.id] || {};
       var label = (q.type === 'mcq' ? 'Câu ' + (i + 1) : 'Bài tự luận ' + (i - mTotal + 1));
-      button.classList.toggle('oks', a.status === 'ok');
-      button.classList.toggle('rev', a.status === 'revealed');
-      button.classList.toggle('draft', !a.status && (a.attempts > 0 || (Array.isArray(a.value) ? a.value.some(Boolean) : a.value !== undefined && a.value !== null)));
+      var isAns = isAnswered(q);
+      if (isExamMode()) {
+        if (state.submitted) {
+          button.classList.toggle('oks', a.status === 'ok');
+          button.classList.toggle('wrong', a.status === 'revealed');
+          button.classList.remove('rev', 'draft');
+          button.textContent = (q.type === 'mcq' ? (i + 1) : 'B' + (i - mTotal + 1)) + (a.status === 'ok' ? ' ✓' : ' ✗');
+          button.setAttribute('aria-label', label + (a.status === 'ok' ? ' · đúng' : ' · sai'));
+        } else {
+          button.classList.remove('oks', 'wrong', 'rev');
+          button.classList.toggle('draft', isAns);
+          button.textContent = (q.type === 'mcq' ? (i + 1) : 'B' + (i - mTotal + 1));
+          button.setAttribute('aria-label', label + (isAns ? ' · đã làm' : ' · chưa làm'));
+        }
+      } else {
+        button.classList.remove('wrong');
+        button.classList.toggle('oks', a.status === 'ok');
+        button.classList.toggle('rev', a.status === 'revealed');
+        button.classList.toggle('draft', !a.status && isAns);
+        button.textContent = (q.type === 'mcq' ? i + 1 : 'B' + (i - mTotal + 1)) + (a.status === 'ok' ? ' ✓' : a.status === 'revealed' ? ' ↗' : '');
+        button.setAttribute('aria-label', label + (a.status === 'ok' ? ' · đúng' : a.status === 'revealed' ? ' · đã xem đáp án' : ' · chưa hoàn thành'));
+      }
       button.classList.toggle('cur', !state.finished && i === state.idx);
       button.setAttribute('aria-current', !state.finished && i === state.idx ? 'step' : 'false');
-      button.setAttribute('aria-label', label + (a.status === 'ok' ? ' · đúng' : a.status === 'revealed' ? ' · đã xem đáp án' : ' · chưa hoàn thành'));
-      button.textContent = (q.type === 'mcq' ? i + 1 : 'B' + (i - mTotal + 1)) + (a.status === 'ok' ? ' ✓' : a.status === 'revealed' ? ' ↗' : '');
     });
   }
 
   function navigation() {
     var mTotal = mcqTotal();
     var exam = isExamMode();
+    var legendHTML = '';
+    if (exam) {
+      if (state.submitted) {
+        legendHTML = '<b>✓</b> Đúng &nbsp;·&nbsp; <b>✗</b> Sai<br><span class="leg-dot leg-cur"></span> Đang xem';
+      } else {
+        legendHTML = '<span class="leg-dot leg-draft"></span> Đã làm &nbsp;·&nbsp; <span class="leg-dot leg-empty"></span> Chưa làm<br><span class="leg-dot leg-cur"></span> Đang xem';
+      }
+    } else {
+      legendHTML = '<b>✓</b> Đúng &nbsp;·&nbsp; <b>↗</b> Xem đáp án/Chữa bài<br><span class="leg-dot leg-cur"></span> Đang làm &nbsp;·&nbsp; <span class="leg-dot leg-draft"></span> Đã điền nháp';
+    }
     return '<aside class="exam-nav" aria-label="Danh sách câu hỏi">' +
       '<div class="exam-nav-head"><h2>' + (exam ? 'Đề thi 80 phút' : 'Đề ôn tập') + '</h2>' +
       '<p>' + (exam ? '50 trắc nghiệm phân hóa · 5 tự luận · 80:00' : '40 trắc nghiệm · 5 tự luận · Tự do thời gian') + '</p></div>' +
@@ -378,7 +408,7 @@
       '</div><div class="nav-section-title"><h3>Tự luận điền khuyết</h3><span class="nav-badge">5 bài</span></div>' +
       '<div class="question-grid essay-grid">' +
       state.deck.slice(mTotal).map(function (q, i) { return '<button type="button" class="qnav" data-go="' + (mTotal + i) + '">B' + (i + 1) + '</button>'; }).join('') +
-      '</div><div class="nav-legend-box"><p class="nav-legend"><b>✓</b> Đúng &nbsp;·&nbsp; <b>↗</b> Xem đáp án/Chữa bài<br><span class="leg-dot leg-cur"></span> Đang làm &nbsp;·&nbsp; <span class="leg-dot leg-draft"></span> Đã điền nháp</p></div>' +
+      '</div><div class="nav-legend-box"><p class="nav-legend">' + legendHTML + '</p></div>' +
       (exam && !state.submitted ? '<button type="button" class="submit-exam-btn nav-submit-btn" data-action="submit-exam">Nộp bài thi ngay ✓</button>' : '') +
       '<button type="button" class="secondary-btn" data-action="summary">Xem tổng kết</button></aside>';
   }
@@ -387,6 +417,8 @@
     var mTotal = mcqTotal();
     var total = deckTotal();
     var a = answer(q);
+    var exam = isExamMode();
+    var hideCheckButtons = exam;
     var diffChip = (q.type === 'mcq' && q.difficulty && diffLabels[q.difficulty])
       ? '<span class="diff-chip diff-' + esc(q.difficulty) + '">Mức độ: ' + esc(diffLabels[q.difficulty]) + '</span>'
       : '';
@@ -399,8 +431,9 @@
         html += '<div class="code-box"><div class="code-box-header"><div class="mac-dots"><span class="d-red"></span><span class="d-yellow"></span><span class="d-green"></span></div><span class="code-lang">C# Console</span></div><pre class="codeblock mcq-code"><code>' + esc(q.code) + '</code></pre></div>';
       }
       html += '<fieldset class="mcq-options"><legend>Chọn một đáp án đúng</legend>' + q.options.map(function (option, i) {
-        return '<label class="mcq-option"><input type="radio" name="choice" value="' + i + '"' + (a.value === i ? ' checked' : '') +
-          '><span class="opt-indicator">' + 'ABCD'[i] + '</span><span class="opt-body"><b>' + 'ABCD'[i] + '.</b> ' + escCode(option) + '</span></label>';
+        return '<label class="mcq-option" data-opt="' + i + '"><input type="radio" name="choice" value="' + i + '"' + (a.value === i ? ' checked' : '') +
+          '><span class="opt-indicator">' + 'ABCD'[i] + '</span><span class="opt-body"><b>' + 'ABCD'[i] + '.</b> ' + escCode(option) + '</span>' +
+          '<span class="opt-tag hidden"></span></label>';
       }).join('') + '</fieldset>';
     } else {
       if (q.formVersion === 2) {
@@ -426,58 +459,158 @@
           }).join('') + '</div>';
         }).join('') + '</div></div>';
     }
-    return html + '<div class="actionrow"><button type="button" id="checkBtn" class="primary-btn" data-action="check">Kiểm tra</button>' +
-      '<button type="button" id="revealBtn" class="link-btn hidden" data-action="reveal">Xem đáp án</button>' +
+    var nextText = (state.idx === total - 1)
+      ? (exam && !state.submitted ? 'Nộp bài thi ✓' : 'Tổng kết')
+      : (state.idx === mTotal - 1 ? 'Sang tự luận →' : 'Câu tiếp →');
+    return html + '<div class="actionrow">' +
+      '<button type="button" id="checkBtn" class="primary-btn' + (hideCheckButtons ? ' hidden' : '') + '" data-action="check"' + (hideCheckButtons ? ' style="display:none"' : '') + '>Kiểm tra</button>' +
+      '<button type="button" id="revealBtn" class="link-btn hidden" data-action="reveal"' + (hideCheckButtons ? ' style="display:none"' : '') + '>Xem đáp án</button>' +
       '<span id="feedback" class="fb-text" tabindex="-1" role="status" aria-live="polite"></span></div>' +
       '<div id="explain" class="explain hidden"></div><div class="cardfoot">' +
       '<button type="button" class="backbtn" data-action="back"' + (state.idx === 0 ? ' disabled' : '') + '>← Quay lại</button>' +
-      '<button type="button" class="nextbtn" data-action="next">' + (state.idx === total - 1 ? 'Tổng kết' : state.idx === mTotal - 1 ? 'Sang tự luận →' : 'Câu tiếp →') + '</button></div></section>';
+      '<button type="button" class="nextbtn" data-action="next">' + nextText + '</button></div></section>';
   }
 
   function paintAnswer(showWrong) {
-    var q = current(), a = answer(q), checked = core.check(q, a.value), locked = !!a.status;
-    if (q.type === 'essay') all('.blank').forEach(function (input) {
-      var i = Number(input.dataset.b);
-      input.value = a.value[i] || '';
-      input.readOnly = locked;
-      input.classList.toggle('ok', locked || (showWrong && checked.fields[i]));
-      input.classList.toggle('bad', !locked && showWrong && !checked.fields[i]);
-      input.setAttribute('aria-invalid', !locked && showWrong && !checked.fields[i] ? 'true' : 'false');
-      input.style.width = Math.min(42, Math.max(8, input.value.length + 2)) + 'ch';
-    });
-    else all('.mcq-option').forEach(function (label, i) {
-      label.querySelector('input').disabled = locked;
-      label.querySelector('input').checked = a.value === i;
-      label.classList.toggle('correct-choice', locked && i === q.answer);
-      label.classList.toggle('wrong-choice', (showWrong && !locked && i === a.value && i !== q.answer) ||
-        (locked && a.status === 'revealed' && a.userValue === i && i !== q.answer));
-    });
-    $('#checkBtn').disabled = locked;
-    $('#checkBtn').textContent = a.status === 'ok' ? 'Đã đúng ✓' : a.status === 'revealed' ? 'Đã xem đáp án' : 'Kiểm tra';
-    $('#revealBtn').classList.toggle('hidden', locked || a.attempts < 2);
-    var feedback = $('#feedback');
-    feedback.className = 'fb-text' + (a.status === 'ok' ? ' ok' : showWrong && !locked ? ' bad' : '');
-    if (a.status === 'ok') {
-      feedback.textContent = 'Chính xác! ✓';
-    } else if (a.status === 'revealed') {
-      if (a.userValue !== undefined && q.type === 'mcq') {
-        feedback.textContent = (a.userValue === null || a.userValue === undefined)
-          ? 'Chưa chọn đáp án khi nộp bài; đã hiển thị đáp án đúng.'
-          : 'Bạn đã chọn ' + 'ABCD'[a.userValue] + ' (chưa đúng); đã hiển thị đáp án đúng.';
-      } else {
-        feedback.textContent = 'Đã hiện đáp án; không tính là tự làm đúng.';
-      }
-    } else if (showWrong) {
-      feedback.textContent = q.type === 'mcq'
-        ? 'Chưa đúng — hãy thử lại.'
-        : 'Đúng ' + checked.fields.filter(Boolean).length + '/' + q.blanks.length + ' ô. Ô sai có viền đỏ; hãy kiểm tra hoa/thường.';
+    var q = current(), a = answer(q);
+    var exam = isExamMode();
+    var locked = !exam ? !!a.status : !!state.submitted;
+    var userVal = (a.userValue !== undefined) ? a.userValue : a.value;
+
+    if (q.type === 'essay') {
+      var checked = core.check(q, userVal);
+      all('.blank').forEach(function (input) {
+        var i = Number(input.dataset.b);
+        input.value = (userVal && userVal[i]) ? userVal[i] : '';
+        input.readOnly = locked;
+        if (!locked) {
+          input.classList.remove('ok', 'bad');
+          input.setAttribute('aria-invalid', 'false');
+          if (!exam && showWrong) {
+            input.classList.toggle('ok', !!checked.fields[i]);
+            input.classList.toggle('bad', !checked.fields[i]);
+            input.setAttribute('aria-invalid', !checked.fields[i] ? 'true' : 'false');
+          }
+        } else {
+          var isOk = checked.fields[i];
+          input.classList.toggle('ok', isOk);
+          input.classList.toggle('bad', !isOk);
+          input.setAttribute('aria-invalid', isOk ? 'false' : 'true');
+        }
+        input.style.width = Math.min(42, Math.max(8, input.value.length + 2)) + 'ch';
+      });
     } else {
-      feedback.textContent = '';
+      all('.mcq-option').forEach(function (label, i) {
+        var input = label.querySelector('input');
+        input.disabled = locked;
+        var tag = label.querySelector('.opt-tag');
+        if (!locked) {
+          input.checked = a.value === i;
+          label.classList.remove('correct-choice', 'wrong-choice');
+          if (!exam && showWrong) {
+            label.classList.toggle('wrong-choice', i === a.value && i !== q.answer);
+          }
+          if (tag) tag.className = 'opt-tag hidden';
+        } else {
+          var isChosen = (userVal === i);
+          input.checked = isChosen;
+          var isCorrect = (i === q.answer);
+          label.classList.toggle('correct-choice', isCorrect);
+          label.classList.toggle('wrong-choice', isChosen && !isCorrect);
+          if (tag) {
+            if (isCorrect) {
+              tag.textContent = '✓ Đáp án đúng';
+              tag.className = 'opt-tag opt-tag-correct';
+            } else if (isChosen) {
+              tag.textContent = '✗ Lựa chọn của bạn';
+              tag.className = 'opt-tag opt-tag-wrong';
+            } else {
+              tag.className = 'opt-tag hidden';
+            }
+          }
+        }
+      });
     }
-    $('#explain').classList.toggle('hidden', !locked);
-    if (locked) $('#explain').innerHTML = '<b>Giải thích: </b>' + esc(q.explain) + (q.type === 'essay' ?
-      '<details><summary>Đáp án và giải thích từng ô</summary><ol>' + q.blanks.map(function (b) { return '<li><code>' + esc(b.ok[0]) + '</code>' + (b.explain ? ' — ' + esc(b.explain) : '') + '</li>'; }).join('') + '</ol></details>' : '') +
-      '<p class="source-note">Nguồn dạng bài: ' + esc(q.source) + '</p>';
+
+    var checkBtn = $('#checkBtn');
+    var revealBtn = $('#revealBtn');
+    if (exam) {
+      if (checkBtn) { checkBtn.style.display = 'none'; checkBtn.classList.add('hidden'); }
+      if (revealBtn) { revealBtn.style.display = 'none'; revealBtn.classList.add('hidden'); }
+    } else {
+      if (checkBtn) {
+        checkBtn.style.display = '';
+        checkBtn.classList.remove('hidden');
+        checkBtn.disabled = locked;
+        checkBtn.textContent = a.status === 'ok' ? 'Đã đúng ✓' : a.status === 'revealed' ? 'Đã xem đáp án' : 'Kiểm tra';
+      }
+      if (revealBtn) {
+        revealBtn.style.display = '';
+        revealBtn.classList.toggle('hidden', locked || a.attempts < 2);
+      }
+    }
+
+    var feedback = $('#feedback');
+    if (!locked) {
+      feedback.className = 'fb-text';
+      feedback.textContent = '';
+      if (!exam && showWrong) {
+        feedback.className = 'fb-text bad';
+        feedback.textContent = q.type === 'mcq'
+          ? 'Chưa đúng — hãy thử lại.'
+          : 'Đúng ' + core.check(q, a.value).fields.filter(Boolean).length + '/' + q.blanks.length + ' ô. Ô sai có viền đỏ; hãy kiểm tra hoa/thường.';
+      } else if (!exam && a.status === 'ok') {
+        feedback.className = 'fb-text ok';
+        feedback.textContent = 'Chính xác! ✓';
+      }
+    } else {
+      if (q.type === 'mcq') {
+        var uChoice = (a.userValue !== undefined) ? a.userValue : a.value;
+        if (uChoice === q.answer) {
+          feedback.className = 'fb-text ok';
+          feedback.textContent = 'Chính xác! ✓ Bạn đã chọn đúng đáp án ' + 'ABCD'[q.answer] + '.';
+        } else if (uChoice !== null && uChoice !== undefined) {
+          feedback.className = 'fb-text bad';
+          feedback.textContent = 'Chưa chính xác: Bạn đã chọn ' + 'ABCD'[uChoice] + ' (sai); đáp án đúng là ' + 'ABCD'[q.answer] + '.';
+        } else {
+          feedback.className = 'fb-text bad';
+          feedback.textContent = 'Chưa chọn đáp án khi nộp bài; đáp án đúng là ' + 'ABCD'[q.answer] + '.';
+        }
+      } else {
+        var uVal = (a.userValue !== undefined) ? a.userValue : a.value;
+        var chk = core.check(q, uVal);
+        var corCount = chk.fields.filter(Boolean).length;
+        if (corCount === q.blanks.length) {
+          feedback.className = 'fb-text ok';
+          feedback.textContent = 'Chính xác! ✓ Bạn đã làm đúng toàn bộ ' + q.blanks.length + '/' + q.blanks.length + ' ô trống.';
+        } else {
+          feedback.className = 'fb-text bad';
+          feedback.textContent = 'Kết quả tự luận: Đúng ' + corCount + '/' + q.blanks.length + ' ô. Các ô sai hoặc chưa điền được đánh dấu viền đỏ.';
+        }
+      }
+    }
+
+    var explainBox = $('#explain');
+    explainBox.classList.toggle('hidden', !locked);
+    if (locked) {
+      var uVal = (a.userValue !== undefined) ? a.userValue : a.value;
+      var chk = core.check(q, uVal);
+      var essayDetail = '';
+      if (q.type === 'essay') {
+        essayDetail = '<div class="essay-review-panel"><h4>Đối chiếu chi tiết từng ô điền khuyết:</h4><ol class="essay-review-list">' +
+          q.blanks.map(function (b, idx) {
+            var val = (uVal && uVal[idx]) ? uVal[idx] : '(chưa điền)';
+            var isOk = chk.fields[idx];
+            return '<li class="' + (isOk ? 'blank-ok' : 'blank-bad') + '">' +
+              '<strong>Ô ' + (idx + 1) + ':</strong> Bạn điền: <code class="user-code">' + esc(val) + '</code> ' +
+              (isOk ? '<span class="tag-ok">✓ Đúng</span>' : '<span class="tag-bad">✗ Chưa đúng</span> — Đáp án đúng: <code class="key-code">' + esc(b.ok[0]) + '</code>') +
+              (b.explain ? ' <em>(' + esc(b.explain) + ')</em>' : '') +
+              '</li>';
+          }).join('') + '</ol></div>';
+      }
+      explainBox.innerHTML = '<b>Giải thích: </b>' + esc(q.explain) + essayDetail +
+        '<p class="source-note">Nguồn dạng bài: ' + esc(q.source) + '</p>';
+    }
     progress();
   }
 
@@ -489,26 +622,36 @@
       var dur = state.durationSeconds || core.DURATION_SECONDS || 4800;
       var rem = typeof state.remainingSeconds === 'number' ? state.remainingSeconds : dur;
       var spent = Math.max(0, dur - rem);
-      var title = state.submitted
-        ? (state.submittedReason === 'timeout' ? 'Kết quả bài thi (Hết giờ 80 phút)' : 'Kết quả bài thi (Đã nộp bài)')
-        : (s.completed === total ? 'Tổng kết đề thi 80 phút' : 'Tổng kết tạm thời (Chưa nộp bài)');
-      var statusNote = state.submitted
-        ? 'Thời gian làm bài: ' + formatTime(spent) + ' / 80:00 · Bạn có thể bấm “Quay lại bài làm” hoặc chọn từng câu ở cột trái để xem giải thích chi tiết.'
-        : 'Còn ' + (total - s.completed) + ' câu/bài chưa chốt và còn ' + formatTime(rem) + '. Bạn có thể quay lại làm tiếp hoặc bấm “Nộp bài thi” để chấm toàn bộ đề.';
+      var mcqAns = state.deck.slice(0, 50).filter(isAnswered).length;
+      var essayAns = state.deck.slice(50).filter(isAnswered).length;
+      var answeredCount = mcqAns + essayAns;
+
+      if (!state.submitted) {
+        return '<section class="card finish"><h1 id="questionTitle" tabindex="-1">Tổng kết tạm thời (Chưa nộp bài)</h1>' +
+          '<p>Đã làm <b>' + answeredCount + '/55</b> câu (' + mcqAns + '/50 trắc nghiệm, ' + essayAns + '/5 tự luận). Còn lại ' + (55 - answeredCount) + ' câu chưa làm và còn <b>' + formatTime(rem) + '</b> thời gian làm bài.</p>' +
+          '<div class="chapsum"><p>Đề thi sẽ được chấm điểm toàn bộ sau khi bạn bấm <b>“Nộp bài thi ngay”</b> hoặc khi hết thời gian 80 phút. Sau khi nộp bài, bạn có thể xem lại chi tiết từng câu để biết rõ chỗ nào mình đúng, chỗ nào mình sai cùng lời giải thích chi tiết.</p></div>' +
+          '<div class="fin-btns">' +
+          '<button type="button" class="primary-btn" data-action="continue">Quay lại làm bài</button>' +
+          '<button type="button" class="submit-exam-btn" data-action="submit-exam">Nộp bài thi ngay ✓</button>' +
+          '<button type="button" class="regenbtn" data-action="new">Tạo đề thi mới 🎲</button>' +
+          '</div></section>';
+      }
+
+      var title = state.submittedReason === 'timeout' ? 'Kết quả bài thi (Hết giờ 80 phút)' : 'Kết quả bài thi (Đã nộp bài)';
+      var statusNote = 'Thời gian làm bài: ' + formatTime(spent) + ' / 80:00 · Bạn có thể bấm “Xem lại bài làm” hoặc chọn từng câu ở cột trái để xem chi tiết chỗ đúng, chỗ sai cùng giải thích chi tiết.';
       return '<section class="card finish"><h1 id="questionTitle" tabindex="-1">' + esc(title) + '</h1>' +
         '<p>' + esc(statusNote) + '</p>' +
         '<div class="chapsum"><h2>Trắc nghiệm phân hóa (50 câu)</h2>' +
-        '<p>Tổng trắc nghiệm đúng: <b>' + s.mcq.correct + '/50</b> (' + Math.round(s.mcq.correct / 50 * 100) + '%) · Xem đáp án/Chữa bài: ' + s.mcq.revealed + '</p>' +
+        '<p>Tổng trắc nghiệm đúng: <b>' + s.mcq.correct + '/50</b> (' + Math.round(s.mcq.correct / 50 * 100) + '%)</p>' +
         '<ul class="diff-breakdown">' +
         '<li><span class="diff-chip diff-easy">Mức Dễ (10 câu)</span> <b>' + s.byDifficulty.easy.correct + '/10</b> câu đúng</li>' +
         '<li><span class="diff-chip diff-medium">Mức Trung bình (15 câu)</span> <b>' + s.byDifficulty.medium.correct + '/15</b> câu đúng</li>' +
         '<li><span class="diff-chip diff-hard">Mức Khó (25 câu)</span> <b>' + s.byDifficulty.hard.correct + '/25</b> câu đúng</li>' +
         '</ul>' +
         '<h2>Tự luận điền khuyết (5 bài trong kho 300 câu)</h2>' +
-        '<p>Tự làm đúng toàn bài: <b>' + s.essay.correct + '/5</b> · Xem đáp án/Chữa bài: ' + s.essay.revealed + '</p>' +
-        '<p>Đáp án đã xem hoặc câu chưa đúng khi nộp bài không được tính vào số câu tự làm đúng.</p></div>' +
-        '<div class="fin-btns"><button type="button" class="primary-btn" data-action="continue">Quay lại bài làm</button>' +
-        (!state.submitted ? '<button type="button" class="submit-exam-btn" data-action="submit-exam">Nộp bài thi ngay ✓</button>' : '') +
+        '<p>Tự làm đúng toàn bài: <b>' + s.essay.correct + '/5</b></p>' +
+        '<p>Tổng đúng: <b>' + (s.mcq.correct + s.essay.correct) + '/55</b> câu (' + Math.round((s.mcq.correct + s.essay.correct) / 55 * 100) + '%)</p></div>' +
+        '<div class="fin-btns"><button type="button" class="primary-btn" data-action="continue">Xem lại bài làm (chi tiết từng câu)</button>' +
         '<button type="button" class="regenbtn" data-action="new">Tạo đề thi mới 🎲</button></div></section>';
     }
     return '<section class="card finish"><h1 id="questionTitle" tabindex="-1">' + (s.completed === total ? 'Tổng kết đề luyện tập' : 'Tổng kết hiện tại') + '</h1>' +
@@ -529,6 +672,7 @@
   function go(index) { state.idx = index; state.finished = false; save(); render(true); }
   function summary() { state.finished = true; save(); render(true); }
   function check() {
+    if (isExamMode() && !state.submitted) return;
     var q = current(), a = answer(q);
     if (a.status) return;
     if (q.type === 'mcq' && a.value === null) { $('#feedback').textContent = 'Hãy chọn một đáp án trước.'; return; }
@@ -538,6 +682,7 @@
     if (a.status) $('#feedback').focus({ preventScroll: true });
   }
   function reveal() {
+    if (isExamMode() && !state.submitted) return;
     var q = current(), a = answer(q);
     if (a.status || a.attempts < 2) return;
     a.value = q.type === 'mcq' ? q.answer : q.blanks.map(function (b) { return b.ok[0]; });
@@ -594,7 +739,14 @@
         case 'check': check(); break;
         case 'reveal': reveal(); break;
         case 'back': if (state.idx > 0) go(state.idx - 1); break;
-        case 'next': if (state.idx < deckTotal() - 1) go(state.idx + 1); else summary(); break;
+        case 'next':
+          if (state.idx < deckTotal() - 1) {
+            go(state.idx + 1);
+          } else {
+            if (isExamMode() && !state.submitted) submitExam('manual');
+            else summary();
+          }
+          break;
         case 'summary': summary(); break;
         case 'continue': state.finished = false; save(); render(true); break;
         case 'new': newExam(true, isExamMode() ? 'exam' : 'practice'); break;
@@ -616,7 +768,8 @@
     });
     app.addEventListener('keydown', function (event) {
       if (event.key === 'Enter' && event.target.matches('.blank') && !state.finished) {
-        event.preventDefault(); if (!answer(current()).status) check();
+        event.preventDefault();
+        if (!isExamMode() && !answer(current()).status) check();
       }
     });
   });
