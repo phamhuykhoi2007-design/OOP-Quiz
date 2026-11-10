@@ -5,15 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ôn tập & Thi thử Lập trình hướng đối tượng (C#)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%8E%93%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
-        <span class="brand-emoji">🎓</span>
-        <span class="brand-name">Ôn tập <b>Lập trình hướng đối tượng</b></span>
-        <span class="brand-sub">C# · Kho 600 TN &amp; 300 Tự luận</span>
+        <span class="brand-badge"><span class="brand-emoji">🎓</span></span>
+        <div class="brand-text">
+          <span class="brand-name">Ôn tập <b>Lập trình hướng đối tượng</b></span>
+          <span class="brand-sub">C# · Kho 600 TN &amp; 300 Tự luận</span>
+        </div>
       </div>
       <div class="modeswitch" role="group" aria-label="Chế độ học tập">
         <button id="practiceModeBtn" class="modebtn active" type="button" aria-pressed="true">📖 Ôn tập</button>
@@ -22,6 +27,7 @@
       <div class="topbar-right">
         <span id="examFormatText" class="exam-format">40 trắc nghiệm + 5 tự luận</span>
         <div id="examTimerBadge" class="timer-badge hidden" role="timer" aria-label="Thời gian còn lại">
+          <span class="timer-pulse" aria-hidden="true"></span>
           <span class="timer-icon" aria-hidden="true">⏳</span>
           <span id="timerText">80:00</span>
         </div>
@@ -33,13 +39,18 @@
   </header>
 
   <div class="exam-toolbar">
-    <nav class="chapters-inner" aria-label="Phần bài thi">
-      <button class="pill" id="mcqTab" type="button">Trắc nghiệm · 40 câu</button>
-      <button class="pill" id="essayTab" type="button">Tự luận điền khuyết · 5 bài</button>
-      <button class="pill" id="summaryBtn" type="button">Tổng kết</button>
-      <button class="regenbtn" id="newEssaysBtn" type="button">Đổi 5 bài tự luận</button>
-    </nav>
-    <p id="progressText" class="progress-text" aria-live="polite"></p>
+    <div class="toolbar-nav-row">
+      <nav class="chapters-inner" aria-label="Phần bài thi">
+        <button class="pill" id="mcqTab" type="button">Trắc nghiệm · 40 câu</button>
+        <button class="pill" id="essayTab" type="button">Tự luận điền khuyết · 5 bài</button>
+        <button class="pill" id="summaryBtn" type="button">Tổng kết</button>
+        <button class="regenbtn" id="newEssaysBtn" type="button">Đổi 5 bài tự luận</button>
+      </nav>
+      <p id="progressText" class="progress-text" aria-live="polite"></p>
+    </div>
+    <div class="progress-track" aria-hidden="true">
+      <div id="examProgressBar" class="progress-fill" style="width: 0%"></div>
+    </div>
   </div>
   <p id="storageNotice" class="storage-notice hidden" role="status"></p>
 

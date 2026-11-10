@@ -13,7 +13,15 @@
   function $(s) { return document.querySelector(s); }
   function all(s) { return Array.from(document.querySelectorAll(s)); }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
-  function notice(message) { $('#storageNotice').textContent = message; $('#storageNotice').classList.remove('hidden'); }
+  function escCode(s) {
+    return esc(s).replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+  }
+  function notice(message) {
+    var el = $('#storageNotice');
+    if (!el) return;
+    el.textContent = message;
+    el.classList.remove('hidden');
+  }
   function hideNotice() { $('#storageNotice').classList.add('hidden'); }
 
   function isExamMode() {
@@ -325,6 +333,12 @@
     } else {
       $('#progressText').textContent = 'Trắc nghiệm đúng ' + s.mcq.correct + '/' + mTotal + ' · Tự luận đúng ' + s.essay.correct + '/5 · Đã xử lý ' + s.completed + '/' + total;
     }
+    var pBar = $('#examProgressBar');
+    if (pBar) {
+      var pct = total > 0 ? Math.round((s.completed / total) * 100) : 0;
+      pBar.style.width = pct + '%';
+      pBar.setAttribute('aria-valuenow', pct);
+    }
     $('#mcqTab').classList.toggle('active', !state.finished && state.idx < mTotal);
     $('#essayTab').classList.toggle('active', !state.finished && state.idx >= mTotal);
     $('#summaryBtn').classList.toggle('active', state.finished);
@@ -347,14 +361,17 @@
   function navigation() {
     var mTotal = mcqTotal();
     var exam = isExamMode();
-    return '<aside class="exam-nav" aria-label="Danh sách câu hỏi"><h2>' + (exam ? 'Đề thi 80 phút' : 'Đề ôn tập') + '</h2>' +
-      '<p>' + (exam ? '50 TN phân hóa (10 Dễ · 15 TB · 25 Khó) + 5 TL từ kho 600 TN & 300 TL' : '5 chương · C# · Luyện tập offline (Kho 600 TN & 300 TL)') + '</p>' +
-      '<h3>Trắc nghiệm (' + mTotal + ' câu)</h3><div class="question-grid">' +
+    return '<aside class="exam-nav" aria-label="Danh sách câu hỏi">' +
+      '<div class="exam-nav-head"><h2>' + (exam ? 'Đề thi 80 phút' : 'Đề ôn tập') + '</h2>' +
+      '<p>' + (exam ? '50 TN phân hóa (10 Dễ · 15 TB · 25 Khó) + 5 TL từ kho 600 TN & 300 TL' : '5 chương · C# · Luyện tập offline (Kho 600 TN & 300 TL)') + '</p></div>' +
+      '<div class="nav-section-title"><h3>Trắc nghiệm</h3><span class="nav-badge">' + mTotal + ' câu</span></div>' +
+      '<div class="question-grid">' +
       state.deck.slice(0, mTotal).map(function (q, i) { return '<button type="button" class="qnav" data-go="' + i + '">' + (i + 1) + '</button>'; }).join('') +
-      '</div><h3>Tự luận điền khuyết (5 bài)</h3><div class="question-grid essay-grid">' +
+      '</div><div class="nav-section-title"><h3>Tự luận điền khuyết</h3><span class="nav-badge">5 bài</span></div>' +
+      '<div class="question-grid essay-grid">' +
       state.deck.slice(mTotal).map(function (q, i) { return '<button type="button" class="qnav" data-go="' + (mTotal + i) + '">B' + (i + 1) + '</button>'; }).join('') +
-      '</div><p class="nav-legend">✓ Đúng · ↗ Xem đáp án/Chữa bài<br>Viền xanh: đang làm · Nét đứt: đã điền</p>' +
-      (exam && !state.submitted ? '<button type="button" class="submit-exam-btn nav-submit-btn" data-action="submit-exam">Nộp bài thi ✓</button>' : '') +
+      '</div><div class="nav-legend-box"><p class="nav-legend"><b>✓</b> Đúng &nbsp;·&nbsp; <b>↗</b> Xem đáp án/Chữa bài<br><span class="leg-dot leg-cur"></span> Đang làm &nbsp;·&nbsp; <span class="leg-dot leg-draft"></span> Đã điền nháp</p></div>' +
+      (exam && !state.submitted ? '<button type="button" class="submit-exam-btn nav-submit-btn" data-action="submit-exam">Nộp bài thi ngay ✓</button>' : '') +
       '<button type="button" class="secondary-btn" data-action="summary">Xem tổng kết</button></aside>';
   }
 
@@ -368,12 +385,14 @@
     var html = '<section class="card question-card"><div class="qtop"><div class="qchips"><span class="qchip">Chương ' + q.ch + ' · ' + chapters[q.ch] +
       '</span>' + diffChip + '</div><span class="qcount">' +
       (q.type === 'mcq' ? 'Câu ' + (state.idx + 1) + '/' + mTotal : 'Bài ' + (state.idx - mTotal + 1) + '/5') + '</span></div>' +
-      '<h1 class="qtitle" id="questionTitle" tabindex="-1">' + esc(q.title) + '</h1>';
+      '<h1 class="qtitle" id="questionTitle" tabindex="-1">' + escCode(q.title) + '</h1>';
     if (q.type === 'mcq') {
-      if (q.code) html += '<pre class="codeblock mcq-code"><code>' + esc(q.code) + '</code></pre>';
+      if (q.code) {
+        html += '<div class="code-box"><div class="code-box-header"><div class="mac-dots"><span class="d-red"></span><span class="d-yellow"></span><span class="d-green"></span></div><span class="code-lang">C# Console</span></div><pre class="codeblock mcq-code"><code>' + esc(q.code) + '</code></pre></div>';
+      }
       html += '<fieldset class="mcq-options"><legend>Chọn một đáp án đúng</legend>' + q.options.map(function (option, i) {
         return '<label class="mcq-option"><input type="radio" name="choice" value="' + i + '"' + (a.value === i ? ' checked' : '') +
-          '><span><b>' + 'ABCD'[i] + '.</b> ' + esc(option) + '</span></label>';
+          '><span class="opt-indicator">' + 'ABCD'[i] + '</span><span class="opt-body"><b>' + 'ABCD'[i] + '.</b> ' + escCode(option) + '</span></label>';
       }).join('') + '</fieldset>';
     } else {
       if (q.formVersion === 2) {
@@ -391,13 +410,13 @@
         (!isExamMode() ? '<button type="button" class="link-btn" data-action="new-essays">Đổi 5 bài tự luận</button>' : '') +
         '</div>' +
         '<p class="input-hint">Điền ' + q.blanks.length + ' ô trống. Phân biệt hoa/thường như C#; bỏ qua khoảng trắng giữa các token. Bản nháp tự lưu khi nhập.</p>' +
-        '<div class="codeblock essay-code" role="group" aria-label="Chương trình C# cần hoàn thiện">' + q.lines.map(function (line) {
+        '<div class="code-box"><div class="code-box-header"><div class="mac-dots"><span class="d-red"></span><span class="d-yellow"></span><span class="d-green"></span></div><span class="code-lang">C# Program.cs</span></div><div class="codeblock essay-code" role="group" aria-label="Chương trình C# cần hoàn thiện">' + q.lines.map(function (line) {
           return '<div class="cl">' + line.map(function (seg) {
             if (typeof seg === 'string') return '<span>' + esc(seg) + '</span>';
             return '<input class="blank" data-b="' + seg.b + '" value="' + esc(a.value[seg.b] || '') +
               '" aria-label="Ô trống ' + (seg.b + 1) + '" placeholder="' + (seg.b + 1) + '" spellcheck="false" autocomplete="off" autocapitalize="off">';
           }).join('') + '</div>';
-        }).join('') + '</div>';
+        }).join('') + '</div></div>';
     }
     return html + '<div class="actionrow"><button type="button" id="checkBtn" class="primary-btn" data-action="check">Kiểm tra</button>' +
       '<button type="button" id="revealBtn" class="link-btn hidden" data-action="reveal">Xem đáp án</button>' +
