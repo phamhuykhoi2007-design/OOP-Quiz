@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ôn tập Lập trình hướng đối tượng (C#)</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%8E%93%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-emoji">🎓</span>
+        <span class="brand-name">Ôn tập <b>Lập trình hướng đối tượng</b></span>
+        <span class="brand-sub">C# · Khoa Thống kê – Tin học</span>
+      </div>
+      <div class="topbar-right">
+        <span class="exam-format">40 trắc nghiệm + 5 tự luận</span>
+        <button id="newExamBtn" class="regenbtn" type="button">Tạo đề mới 🎲</button>
+        <button id="clearBtn" class="ghost-btn" type="button">Xóa bài làm</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="exam-toolbar">
+    <nav class="chapters-inner" aria-label="Phần bài thi">
+      <button class="pill" id="mcqTab" type="button">Trắc nghiệm · 40 câu</button>
+      <button class="pill" id="essayTab" type="button">Tự luận điền khuyết · 5 bài</button>
+      <button class="pill" id="summaryBtn" type="button">Tổng kết</button>
+      <button class="regenbtn" id="newEssaysBtn" type="button">Đổi 5 bài tự luận</button>
+    </nav>
+    <p id="progressText" class="progress-text" aria-live="polite"></p>
+  </div>
+  <p id="storageNotice" class="storage-notice hidden" role="status"></p>
+
+  <main id="app"></main>
+
+<script src="mcq-generators.js"></script>
+<script src="essay-generators.js"></script>
+<script src="exam-core.js"></script>
+<script src="exam-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Local dependencies, build outputs and browser-test reports
+node_modules/
+bin/
+obj/
+dist/
+test-results/
+playwright-report/
+
+# Credentials and machine-local files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.log
+*.tmp
+*.bak
+Thumbs.db
+.DS_Store

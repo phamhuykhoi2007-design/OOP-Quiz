@@ -1,0 +1,27 @@
+=== HƯỚNG DẪN NHANH — WEB ÔN TẬP OOP (C#) ===
+
+CÁCH CHẠY:
+1. Giải nén thư mục này (chuột phải → Giải nén / Extract All).
+2. Mở thư mục vừa giải nén, nhấn đúp vào file:  Chay-web.bat
+3. Trình duyệt tự mở ra:  http://localhost:8000 → bắt đầu ôn tập.
+
+LƯU Ý:
+- Muốn TẮT web: đóng cửa sổ màu đen có tên "OOP Quiz Server".
+- Chay-web.bat sẽ CHỜ cổng 8000 sẵn sàng rồi mới mở trình duyệt, nên không
+  còn lỗi "This site can't be reached". Nếu vẫn lỗi: cửa sổ launcher sẽ
+  hiện hướng dẫn chi tiết (đổi set PORT=8000 thành 8080 rồi chạy lại).
+- Máy không có Python (hoặc chỉ có "Python giả" của Microsoft Store) cũng
+  không sao: chương trình tự phát hiện và chuyển sang server dự phòng
+  bằng PowerShell (file server.ps1), tự lui cổng 8001...8009 nếu bị chiếm.
+- Web chạy HOÀN TOÀN OFFLINE: sau khi giải nén không cần internet.
+- Mỗi đề tự sinh gồm 40 câu trắc nghiệm (5 chương) và 5 bài tự luận điền
+  khuyết chương trình C# dài, theo dạng ảnh mẫu.
+- Nút "Tạo đề mới 🎲" sinh biến thể mới, có hỏi xác nhận nếu đã làm bài.
+- Nút "Đổi 5 bài tự luận" tạo thêm bài theo đúng 3 form ảnh, giữ nguyên
+  40 câu trắc nghiệm và câu trả lời trắc nghiệm. Có hỏi trước khi thay bài đã điền.
+- Bản nháp tự lưu khi nhập; có thể chuyển câu hoặc tải lại trang làm tiếp.
+- Code phân biệt hoa/thường như C#. Sau 2 lần kiểm tra sai có thể xem đáp án.
+- Bài đã xem đáp án không tính là tự làm đúng. "Tổng kết" tách riêng hai phần.
+- "Xóa bài làm" giữ nguyên đề hiện tại. Xem README-EXAM.md để biết chi tiết.
+
+Chúc bạn ôn tập tốt!
