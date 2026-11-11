@@ -1,6 +1,6 @@
-/* Kiểm thử kho 600 câu trắc nghiệm (200 dễ + 200 trung bình + 200 khó),
+/* Kiểm thử kho 1.500 câu trắc nghiệm (500 dễ + 500 trung bình + 500 khó = 600 câu sinh tham số + 900 câu lý thuyết C#),
    kho 300 câu tự luận theo đúng 3 form ảnh có hướng dẫn đầy đủ,
-   quy tắc chống trùng lặp và chế độ Làm bài thi 80 phút (50 TN phân hóa + 5 TL). */
+   quy tắc chống trùng lặp và 2 chế độ Ôn tập (40 + 5 từ kho) & Làm bài thi 80 phút (50 phân hóa + 5 TL). */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -19,19 +19,21 @@ function seeded(seed) {
   return () => ((n = (Math.imul(1664525, n) + 1013904223) >>> 0) / 4294967296);
 }
 
-test('Kho trắc nghiệm có sẵn đúng 600 câu (200 dễ, 200 trung bình, 200 khó), chia đều 5 chương và không trùng lặp', () => {
+test('Kho trắc nghiệm có sẵn đúng 1500 câu (500 dễ, 500 trung bình, 500 khó), đủ chương và không trùng lặp', () => {
+  assert.deepEqual({ ...ExamMCQ.BANK_COUNTS }, { easy: 500, medium: 500, hard: 500, total: 1500 });
   const bank = ExamMCQ.getBank();
-  assert.equal(bank.length, 600);
+  assert.equal(bank.length, 1500);
   const easy = bank.filter(q => q.difficulty === 'easy');
   const medium = bank.filter(q => q.difficulty === 'medium');
   const hard = bank.filter(q => q.difficulty === 'hard');
-  assert.equal(easy.length, 200);
-  assert.equal(medium.length, 200);
-  assert.equal(hard.length, 200);
+  assert.equal(easy.length, 500);
+  assert.equal(medium.length, 500);
+  assert.equal(hard.length, 500);
 
+  const expectedByCh = { 1: 40, 2: 104, 3: 132, 4: 100, 5: 124 };
   for (const group of [easy, medium, hard]) {
     for (let ch = 1; ch <= 5; ch++) {
-      assert.equal(group.filter(q => q.ch === ch).length, 40, `Mỗi chương phải có đúng 40 câu ở từng mức độ (ch=${ch})`);
+      assert.equal(group.filter(q => q.ch === ch).length, expectedByCh[ch], `Số câu ở ch=${ch} phải đúng chuẩn kho 1500 câu`);
     }
   }
 
@@ -42,13 +44,36 @@ test('Kho trắc nghiệm có sẵn đúng 600 câu (200 dễ, 200 trung bình, 
     assert.ok(q.bankId && !bankIds.has(q.bankId), 'bankId duy nhất: ' + q.bankId);
     bankIds.add(q.bankId);
     const sig = q.title.trim() + '\u0000' + (q.code ? q.code.trim() : '');
-    assert.ok(!sigs.has(sig), 'Không được trùng nội dung câu hỏi trong kho 600 câu: ' + q.title);
+    assert.ok(!sigs.has(sig), 'Không được trùng nội dung câu hỏi trong kho 1500 câu: ' + q.title);
     sigs.add(sig);
     assert.equal(q.options.length, 4);
     assert.equal(new Set(q.options).size, 4);
+    assert.ok(q.options.every(o => typeof o === 'string' && o.trim().length > 0));
+    assert.ok(Number.isInteger(q.ch) && q.ch >= 1 && q.ch <= 5);
+    assert.ok(typeof q.explain === 'string' && q.explain.trim().length > 0);
+    assert.ok(typeof q.source === 'string' && q.source.trim().length > 0);
     assert.ok(Number.isInteger(q.answer) && q.answer >= 0 && q.answer < 4);
     assert.equal(ExamCore.check(q, q.answer).correct, true);
   }
+
+  // Kiểm tra đối chiếu các câu ranh giới trong bộ 900 câu lý thuyết C# vừa nạp
+  const byTpl = new Map(bank.map(q => [q.templateId, q]));
+  assert.equal(byTpl.get('kb900-q1').difficulty, 'easy');
+  assert.equal(byTpl.get('kb900-q1').ch, 2);
+  assert.equal(byTpl.get('kb900-q1').options[byTpl.get('kb900-q1').answer], 'Tạo thể hiện');
+  assert.equal(byTpl.get('kb900-q300').difficulty, 'easy');
+  assert.equal(byTpl.get('kb900-q300').ch, 5);
+  assert.equal(byTpl.get('kb900-q301').difficulty, 'medium');
+  assert.equal(byTpl.get('kb900-q301').ch, 2);
+  assert.equal(byTpl.get('kb900-q301').options[byTpl.get('kb900-q301').answer], 'public void In() { }');
+  assert.equal(byTpl.get('kb900-q600').difficulty, 'medium');
+  assert.equal(byTpl.get('kb900-q600').ch, 5);
+  assert.equal(byTpl.get('kb900-q601').difficulty, 'hard');
+  assert.equal(byTpl.get('kb900-q601').ch, 2);
+  assert.equal(byTpl.get('kb900-q601').options[byTpl.get('kb900-q601').answer], '6');
+  assert.equal(byTpl.get('kb900-q900').difficulty, 'hard');
+  assert.equal(byTpl.get('kb900-q900').ch, 5);
+  assert.equal(byTpl.get('kb900-q900').options[byTpl.get('kb900-q900').answer], 'Ghi đè ToString');
 });
 
 test('Kho tự luận có sẵn đúng 300 câu (100 đóng gói, 100 kế thừa, 100 đa hình) đúng form ảnh và đủ hướng dẫn', () => {
@@ -199,6 +224,7 @@ test('Giao diện index.html có đủ 2 nút Ôn tập và Làm bài thi (80 ph
   assert.match(html, /id="examTimerBadge"/);
   assert.match(html, /id="timerText"[^>]*>80:00</);
   assert.match(html, /id="submitExamBtn"/);
+  assert.match(html, /Kho 1500 TN/);
 });
 
 test('Giao diện index.html có nút chuyển chế độ sáng/tối và script chống FOUT', () => {
@@ -208,9 +234,45 @@ test('Giao diện index.html có nút chuyển chế độ sáng/tối và scrip
   assert.match(html, /oopQuiz\.theme/);
 });
 
-test('Sinh đề thi liên tiếp nhiều vòng (kể cả khi excludeIds tích lũy lớn hơn kho câu hỏi) không bao giờ bị lỗi và luôn đủ 50 TN + 5 TL', () => {
+test('Chế độ Ôn tập (fromBank: true) rút 40 câu từ kho 1500 câu, đủ 5 chương và giữ nguyên nhãn Dễ / Trung bình / Khó', () => {
+  ExamMCQ.resetHistory();
+  ExamEssay.resetHistory();
+  const seenBankIds = new Set();
+
+  for (let round = 1; round <= 10; round++) {
+    const deck = ExamCore.build(seeded(2000 + round), { fromBank: true });
+    assert.equal(deck.length, 45);
+    assert.equal(ExamCore.validatePractice(deck), true);
+    const mcqs = deck.slice(0, 40);
+    for (let ch = 1; ch <= 5; ch++) {
+      assert.equal(mcqs.filter(q => q.ch === ch).length, 8, `Ôn tập phải có 8 câu ở chương ${ch}`);
+    }
+    const diffs = new Set(mcqs.map(q => q.difficulty));
+    assert.deepEqual([...diffs].sort(), ['easy', 'hard', 'medium'], 'Ôn tập phải có đủ 3 mức Dễ / Trung bình / Khó');
+    for (const q of mcqs) {
+      assert.ok(q.bankId, 'Câu Ôn tập rút từ kho phải có bankId');
+      assert.ok(!seenBankIds.has(q.bankId), '10 đề Ôn tập đầu không trùng lặp bankId: ' + q.bankId);
+      seenBankIds.add(q.bankId);
+    }
+  }
+  assert.equal(seenBankIds.size, 400);
+
+  // Kiểm tra tái lập tất định khi trackHistory: false
+  const a = ExamCore.build(seeded(42), { fromBank: true, trackHistory: false });
+  const b = ExamCore.build(seeded(42), { fromBank: true, trackHistory: false });
+  assert.deepEqual(a, b);
+});
+
+test('Sinh đề Ôn tập và Đề thi liên tiếp nhiều vòng (excludeIds tích lũy) không bao giờ lỗi', () => {
   let history = { mcq: [], essay: [] };
   for (let round = 1; round <= 25; round++) {
+    const practiceDeck = ExamCore.build(null, {
+      fromBank: true,
+      excludeIds: history.mcq.concat(history.essay)
+    });
+    assert.equal(practiceDeck.length, 45);
+    assert.equal(new Set(practiceDeck.map(q => q.id)).size, 45);
+
     const deck = ExamCore.buildExam(null, {
       mode: 'exam',
       easy: 10,
@@ -228,7 +290,7 @@ test('Sinh đề thi liên tiếp nhiều vòng (kể cả khi excludeIds tích 
     assert.equal(mcqs.filter(q => q.difficulty === 'medium').length, 15);
     assert.equal(mcqs.filter(q => q.difficulty === 'hard').length, 25);
     assert.equal(new Set(deck.map(q => q.id)).size, 55, `Vòng ${round} không được trùng ID`);
-    deck.forEach(q => {
+    practiceDeck.concat(deck).forEach(q => {
       if (q.type === 'mcq') history.mcq.push(q.bankId || q.id);
       else history.essay.push(q.bankId || q.id);
     });

@@ -83,7 +83,12 @@
     if (options && options.mode === 'exam') {
       return buildExam(rng, options);
     }
-    var deck = global.ExamMCQ.generate(rng || Math.random).concat(global.ExamEssay.generate(rng || Math.random));
+    var fn = rng || Math.random;
+    var opts = options || {};
+    var mcqs = (opts.fromBank && typeof global.ExamMCQ.generatePractice === 'function')
+      ? global.ExamMCQ.generatePractice(fn, opts)
+      : global.ExamMCQ.generate(fn, opts);
+    var deck = mcqs.concat(global.ExamEssay.generate(fn, opts));
     if (!validatePractice(deck)) throw new Error('Bộ sinh phải tạo đúng 40 câu trắc nghiệm và 5 bài tự luận hợp lệ.');
     return deck;
   }

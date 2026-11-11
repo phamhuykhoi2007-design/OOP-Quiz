@@ -1,6 +1,6 @@
 /* Đề tự sinh offline:
-   - Chế độ Ôn tập (practice): 40 câu trắc nghiệm + 5 bài tự luận điền khuyết (không giới hạn thời gian)
-   - Chế độ Làm bài thi (exam): 80 phút, 50 câu trắc nghiệm phân hóa (10 Dễ + 15 Trung bình + 25 Khó xếp lộn xộn từ kho 600 câu) + 5 bài tự luận (từ kho 300 câu) */
+   - Chế độ Ôn tập (practice): 40 câu trắc nghiệm (từ kho 1500 câu, giữ nhãn Dễ / Trung bình / Khó) + 5 bài tự luận điền khuyết (không giới hạn thời gian)
+   - Chế độ Làm bài thi (exam): 80 phút, 50 câu trắc nghiệm phân hóa (10 Dễ + 15 Trung bình + 25 Khó xếp lộn xộn từ kho 1500 câu) + 5 bài tự luận (từ kho 300 câu) */
 (function () {
   'use strict';
 
@@ -76,7 +76,7 @@
       });
       var mcqArr = Array.from(mcqSet);
       var essayArr = Array.from(essaySet);
-      if (mcqArr.length > 200) mcqArr = mcqArr.slice(mcqArr.length - 150);
+      if (mcqArr.length > 900) mcqArr = mcqArr.slice(mcqArr.length - 750);
       if (essayArr.length > 100) essayArr = essayArr.slice(essayArr.length - 75);
       localStorage.setItem(HISTORY_KEY, JSON.stringify({ mcq: mcqArr, essay: essayArr }));
     } catch (e) {}
@@ -283,7 +283,20 @@
           submittedReason: null
         };
       } else {
-        var deckPractice = core.build();
+        var pracHist = loadBankHistory();
+        var deckPractice;
+        try {
+          deckPractice = core.build(null, {
+            fromBank: true,
+            excludeIds: pracHist.mcq.concat(pracHist.essay)
+          });
+        } catch (pracErr) {
+          deckPractice = core.build(null, {
+            fromBank: true,
+            excludeIds: []
+          });
+        }
+        recordBankHistory(deckPractice);
         state = {
           version: 3,
           mode: 'practice',
@@ -725,6 +738,14 @@
     }
     var pracMcqPct = Math.round(s.mcq.correct / mTotal * 100);
     var pracEssayPct = Math.round(s.essay.correct / 5 * 100);
+    var pracDiffTotal = s.byDifficulty.easy.total + s.byDifficulty.medium.total + s.byDifficulty.hard.total;
+    var pracDiffHTML = pracDiffTotal > 0 ? (
+      '<ul class="diff-breakdown">' +
+      '<li><span class="diff-chip diff-easy">Mức Dễ (' + s.byDifficulty.easy.total + ' câu)</span><span class="diff-score"><b>' + s.byDifficulty.easy.correct + '/' + s.byDifficulty.easy.total + '</b> câu đúng</span></li>' +
+      '<li><span class="diff-chip diff-medium">Mức Trung bình (' + s.byDifficulty.medium.total + ' câu)</span><span class="diff-score"><b>' + s.byDifficulty.medium.correct + '/' + s.byDifficulty.medium.total + '</b> câu đúng</span></li>' +
+      '<li><span class="diff-chip diff-hard">Mức Khó (' + s.byDifficulty.hard.total + ' câu)</span><span class="diff-score"><b>' + s.byDifficulty.hard.correct + '/' + s.byDifficulty.hard.total + '</b> câu đúng</span></li>' +
+      '</ul>'
+    ) : '';
     return '<section class="card finish"><h1 id="questionTitle" tabindex="-1">' + (s.completed === total ? 'Tổng kết đề luyện tập' : 'Tổng kết hiện tại') + '</h1>' +
       '<p>' + (total - s.completed ? 'Còn ' + (total - s.completed) + ' câu/bài chưa hoàn thành. Bạn có thể quay lại làm tiếp.' : 'Bạn đã xử lý đủ ' + mTotal + ' câu trắc nghiệm và 5 bài tự luận.') + '</p>' +
       '<div class="summary-kpi-strip">' +
@@ -734,6 +755,7 @@
       '</div>' +
       '<div class="chapsum"><h2>Trắc nghiệm</h2><p>Tự làm đúng <b>' + s.mcq.correct + '/' + mTotal + '</b> (' + pracMcqPct + '%) · Xem đáp án: ' + s.mcq.revealed + '</p>' +
       '<div class="summary-bar-track" aria-hidden="true"><div class="summary-bar-fill" style="width:' + pracMcqPct + '%"></div></div>' +
+      pracDiffHTML +
       '<h2>Tự luận điền khuyết</h2><p>Tự làm đúng toàn bài <b>' + s.essay.correct + '/5</b> (' + pracEssayPct + '%) · Xem đáp án: ' + s.essay.revealed + '</p>' +
       '<div class="summary-bar-track" aria-hidden="true"><div class="summary-bar-fill fill-green" style="width:' + pracEssayPct + '%"></div></div>' +
       '<p>Đáp án đã xem không được tính vào số câu tự làm đúng.</p></div>' +

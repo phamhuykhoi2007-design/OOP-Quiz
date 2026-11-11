@@ -8,26 +8,25 @@
 
 ## Kho câu hỏi và quy tắc chống trùng lặp
 
-- **Kho 600 câu trắc nghiệm (`ExamMCQ.getBank()`):**
-  - **200 câu Dễ (`easy`)** (40 câu/chương × 5 chương)
-  - **200 câu Trung bình (`medium`)** (40 câu/chương × 5 chương)
-  - **200 câu Khó (`hard`)** (40 câu/chương × 5 chương)
-  - Bám sát 5 chương tài liệu lý thuyết OOP C#: Tổng quan OOP, Lớp và đối tượng, Đóng gói, Kế thừa, Đa hình.
+- **Kho 1.500 câu trắc nghiệm (`ExamMCQ.getBank()`):**
+  - **500 câu Dễ (`easy`)** + **500 câu Trung bình (`medium`)** + **500 câu Khó (`hard`)**
+  - Bao gồm **600 câu sinh tham số** (40 câu/mức độ/chương × 5 chương) và **900 câu lý thuyết OOP C#** (300 Dễ + 300 Trung bình + 300 Khó cho Chương 2–5: Lớp và đối tượng, Đóng gói, Kế thừa, Đa hình).
+  - Mỗi chương (`1..5`): Chương 1 có 120 câu; Chương 2 có 312 câu; Chương 3 có 396 câu; Chương 4 có 300 câu; Chương 5 có 372 câu.
 - **Kho 300 câu tự luận điền khuyết (`ExamEssay.getBank()`):**
   - **100 câu Đóng gói (`encapsulation`)** + **100 câu Kế thừa (`inheritance`)** + **100 câu Đa hình (`polymorphism`)** trên 75 ngữ cảnh lớp nghiệp vụ.
   - Giữ đúng 100% form đề ảnh: lời dẫn đầy đủ (`introduction`), hướng dẫn đánh số từng lớp (`sections`) kèm gạch đầu dòng mô tả từng trường/thuộc tính/constructor/phương thức/menu `Main`, và khung chương trình C# có **60–80 ô trống**.
 - **Quy tắc chống trùng lặp:**
   - Không trùng lặp câu hỏi trong cùng một kho và trong cùng một đề.
-  - Giữa các lần tạo đề thi liên tiếp, hệ thống lưu lịch sử `bankId` đã ra (`recentHistory` và `localStorage`) để không lặp lại câu hỏi cũ cho tới khi kho của nhóm độ khó/form đó được rút hết.
+  - Giữa các lần tạo đề Ôn tập và Đề thi liên tiếp, hệ thống lưu lịch sử `bankId` đã ra (`recentHistory` và `localStorage`) để không lặp lại câu hỏi cũ cho tới khi kho của nhóm độ khó/form đó được rút hết.
 
 ## Hai chế độ: Ôn tập & Làm bài thi (80 phút)
 
 1. **📖 Ôn tập (`#practiceModeBtn`):**
-   - 40 câu trắc nghiệm (8 câu/chương) + 5 bài tự luận điền khuyết.
+   - **40 câu trắc nghiệm** (8 câu/chương, đủ 3 mức Dễ / Trung bình / Khó, kèm nhãn mức độ) lấy từ **kho 1.500 câu** + **5 bài tự luận điền khuyết**.
    - Không giới hạn thời gian; kiểm tra từng câu ngay lập tức; cho phép **Xem đáp án** sau 2 lần thử sai; có nút **Đổi 5 bài tự luận** riêng.
 2. **⏱️ Làm bài thi (80 phút) (`#examModeBtn`):**
    - Giới hạn thời gian **80 phút (`80:00`)** với đồng hồ đếm ngược trực tiếp (tự lưu thời gian còn lại khi tải lại trang và **tự động thu bài, chấm điểm** khi hết giờ, hoặc nộp sớm bằng nút **Nộp bài thi ✓**).
-   - **50 câu trắc nghiệm phân hóa**: đúng **10 câu Dễ + 15 câu Trung bình + 25 câu Khó** lấy từ kho 600 câu, **xếp lộn xộn nhau**.
+   - **50 câu trắc nghiệm phân hóa**: đúng **10 câu Dễ + 15 câu Trung bình + 25 câu Khó** lấy từ **kho 1.500 câu**, **xếp lộn xộn nhau**.
    - **5 bài tự luận điền khuyết**: lấy từ kho 300 bài tự luận (đảm bảo đủ cả 3 form Đóng gói, Kế thừa, Đa hình và 5 hệ lớp khác nhau).
    - Khi nộp bài hoặc hết giờ, hệ thống chấm điểm toàn bộ 55 câu và thống kê chi tiết theo từng mức độ (**Dễ /10 · Trung bình /15 · Khó /25 · Tự luận /5**), đồng thời cho phép xem lại lời giải từng câu.
 
@@ -45,11 +44,11 @@
 | File | Chức năng |
 |---|---|
 | `index.html`, `style.css` | Trang, nút chuyển chế độ Ôn tập / Làm bài thi (80 phút), đồng hồ đếm ngược và giao diện |
-| `mcq-generators.js` | Kho 600 câu trắc nghiệm (200 Dễ + 200 TB + 200 Khó), bộ sinh đề Ôn tập (40 câu) và Đề thi phân hóa (50 câu) |
+| `mcq-generators.js` | Kho 1.500 câu trắc nghiệm (500 Dễ + 500 TB + 500 Khó = 600 sinh tham số + 900 lý thuyết C#), bộ sinh đề Ôn tập (40 câu) và Đề thi phân hóa (50 câu) |
 | `essay-generators.js` | Kho 300 bài tự luận điền khuyết (100 bài/form × 3 form ảnh) có hướng dẫn đầy đủ |
 | `exam-core.js` | Xác thực đề Ôn tập (40+5) & Đề thi (50+5), chấm bài, thống kê theo độ khó, khôi phục bài lưu |
 | `exam-app.js` | Điều hướng, đồng hồ 80 phút, tự động nộp bài khi hết giờ, lưu nháp, kiểm tra/xem đáp án |
-| `tests/` | Kiểm thử kho 600 TN, kho 300 TL, quy tắc chống trùng lặp, chấm bài và trình duyệt |
+| `tests/` | Kiểm thử kho 1.500 TN, kho 300 TL, quy tắc chống trùng lặp, chấm bài và trình duyệt |
 
 Các file `app.js`, `questions.js`, `generators.js` cũ được giữ nguyên nhưng không còn nạp vào trang.
 
