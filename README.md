@@ -1,10 +1,10 @@
-# Web Ôn tập Lập trình hướng đối tượng (C#) — Đề tự sinh 40 + 5 & Thi thử 80 phút
+# Web Ôn tập Lập trình hướng đối tượng (C#) — Đề tự sinh 40 + 5 & Thi thử 120 phút
 
 > 🌐 **Website trực tuyến chính thức:**
 > - **Netlify:** [https://stellar-flan-d68d15.netlify.app/](https://stellar-flan-d68d15.netlify.app/)
 > - **GitHub Pages:** [https://phamhuykhoi2007-design.github.io/OOP-Quiz/](https://phamhuykhoi2007-design.github.io/OOP-Quiz/)
 >
-> **Bản hiện tại:** Hỗ trợ 2 chế độ: **📖 Ôn tập** (40 TN từ kho 1.500 câu + 5 TL) và **⏱️ Làm bài thi 80 phút** (50 TN phân hóa 10 dễ + 15 TB + 25 khó từ kho 1.500 câu & 5 TL từ kho 300 câu). Xem **[hướng dẫn chi tiết](README-EXAM.md)**.
+> **Bản hiện tại:** Hỗ trợ 2 chế độ: **📖 Ôn tập** (40 TN từ kho 1.500 câu + 5 TL) và **⏱️ Làm bài thi 120 phút** (50 TN phân hóa 10 dễ + 15 TB + 25 khó từ kho 1.500 câu & 5 TL từ kho 300 câu). Xem **[hướng dẫn chi tiết](README-EXAM.md)**.
 >
 > Phần dưới là **tài liệu lịch sử của bản 48 câu/10 câu cũ**, không còn mô tả giao diện hiện tại. Các file `app.js`, `questions.js`, `generators.js` vẫn được giữ nguyên để tham khảo; trang hiện tại không nạp chúng. Tiến độ cũ cũng được giữ riêng, không xóa.
 

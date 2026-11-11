@@ -1,6 +1,6 @@
 /* Kiểm thử kho 1.500 câu trắc nghiệm (500 dễ + 500 trung bình + 500 khó = 600 câu sinh tham số + 900 câu lý thuyết C#),
    kho 300 câu tự luận theo đúng 3 form ảnh có hướng dẫn đầy đủ,
-   quy tắc chống trùng lặp và 2 chế độ Ôn tập (40 + 5 từ kho) & Làm bài thi 80 phút (50 phân hóa + 5 TL). */
+   quy tắc chống trùng lặp và 2 chế độ Ôn tập (40 + 5 từ kho) & Làm bài thi 120 phút (50 phân hóa + 5 TL). */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -105,8 +105,8 @@ test('Kho tự luận có sẵn đúng 300 câu (100 đóng gói, 100 kế thừ
   }
 });
 
-test('Chế độ Làm bài thi (80 phút): 50 câu TN phân hóa (10 dễ + 15 trung bình + 25 khó xếp lộn xộn) + 5 câu TL, chống trùng lặp giữa các đề', () => {
-  assert.equal(ExamCore.DURATION_SECONDS, 80 * 60);
+test('Chế độ Làm bài thi (120 phút): 50 câu TN phân hóa (10 dễ + 15 trung bình + 25 khó xếp lộn xộn) + 5 câu TL, chống trùng lặp giữa các đề', () => {
+  assert.equal(ExamCore.DURATION_SECONDS, 120 * 60);
   ExamMCQ.resetHistory();
   ExamEssay.resetHistory();
 
@@ -158,7 +158,7 @@ test('Chế độ Làm bài thi (80 phút): 50 câu TN phân hóa (10 dễ + 15 
   assert.equal(seenEssays.size, 40);
 });
 
-test('Chấm bài thi tự động khi nộp bài / hết giờ 80 phút và khôi phục trạng thái bài thi', () => {
+test('Chấm bài thi tự động khi nộp bài / hết giờ 120 phút và khôi phục trạng thái bài thi', () => {
   const deck = ExamCore.buildExam(seeded(77));
   const draftAnswers = {};
   // Trả lời đúng 5 câu dễ đầu tiên, 5 câu TB đầu tiên, 5 câu khó đầu tiên và 2 bài tự luận đầu tiên
@@ -202,7 +202,7 @@ test('Chấm bài thi tự động khi nộp bài / hết giờ 80 phút và kh�
     answers: graded,
     idx: 52,
     finished: true,
-    durationSeconds: 4800,
+    durationSeconds: 7200,
     remainingSeconds: 1234,
     deadline: Date.now() + 1234000,
     submitted: true,
@@ -212,17 +212,18 @@ test('Chấm bài thi tự động khi nộp bài / hết giờ 80 phút và kh�
   assert.ok(restored);
   assert.equal(restored.mode, 'exam');
   assert.equal(restored.idx, 52);
+  assert.equal(restored.durationSeconds, 7200);
   assert.equal(restored.remainingSeconds, 1234);
   assert.equal(restored.submitted, true);
   assert.equal(restored.submittedReason, 'manual');
 });
 
-test('Giao diện index.html có đủ 2 nút Ôn tập và Làm bài thi (80 phút) cùng bộ đếm giờ', () => {
+test('Giao diện index.html có đủ 2 nút Ôn tập và Làm bài thi (120 phút) cùng bộ đếm giờ', () => {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   assert.match(html, /id="practiceModeBtn"[^>]*>.*Ôn tập/);
-  assert.match(html, /id="examModeBtn"[^>]*>.*Làm bài thi \(80 phút\)/);
+  assert.match(html, /id="examModeBtn"[^>]*>.*Làm bài thi \(120 phút\)/);
   assert.match(html, /id="examTimerBadge"/);
-  assert.match(html, /id="timerText"[^>]*>80:00</);
+  assert.match(html, /id="timerText"[^>]*>120:00</);
   assert.match(html, /id="submitExamBtn"/);
   assert.match(html, /Kho 1500 TN/);
 });

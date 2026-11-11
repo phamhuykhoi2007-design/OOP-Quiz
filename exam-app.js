@@ -1,12 +1,14 @@
 /* Đề tự sinh offline:
    - Chế độ Ôn tập (practice): 40 câu trắc nghiệm (từ kho 1500 câu, giữ nhãn Dễ / Trung bình / Khó) + 5 bài tự luận điền khuyết (không giới hạn thời gian)
-   - Chế độ Làm bài thi (exam): 80 phút, 50 câu trắc nghiệm phân hóa (10 Dễ + 15 Trung bình + 25 Khó xếp lộn xộn từ kho 1500 câu) + 5 bài tự luận (từ kho 300 câu) */
+   - Chế độ Làm bài thi (exam): 120 phút, 50 câu trắc nghiệm phân hóa (10 Dễ + 15 Trung bình + 25 Khó xếp lộn xộn từ kho 1500 câu) + 5 bài tự luận (từ kho 300 câu) */
 (function () {
   'use strict';
 
   var KEY = 'oopQuiz.exam.v3';
   var HISTORY_KEY = 'oopQuiz.bankHistory.v1';
   var core = window.ExamCore, state, app, timerInterval = null;
+  var DEFAULT_DURATION = (core && core.DURATION_SECONDS) || 7200;
+  var DEFAULT_MINUTES = Math.round(DEFAULT_DURATION / 60);
   var chapters = { 1: 'Tổng quan OOP', 2: 'Lớp và đối tượng', 3: 'Đóng gói', 4: 'Kế thừa', 5: 'Đa hình' };
   var diffLabels = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' };
 
@@ -137,7 +139,7 @@
       return;
     }
     badge.classList.remove('hidden');
-    var rem = state.remainingSeconds !== undefined ? state.remainingSeconds : (core.DURATION_SECONDS || 4800);
+    var rem = state.remainingSeconds !== undefined ? state.remainingSeconds : (state.durationSeconds || DEFAULT_DURATION);
     timerText.textContent = state.submitted ? ('Đã nộp · ' + formatTime(rem)) : formatTime(rem);
     badge.classList.toggle('timer-warn', !state.submitted && rem <= 600 && rem > 180);
     badge.classList.toggle('timer-danger', !state.submitted && rem <= 180);
@@ -157,7 +159,7 @@
       updateTimerUI();
       return;
     }
-    var dur = state.durationSeconds || core.DURATION_SECONDS || 4800;
+    var dur = state.durationSeconds || DEFAULT_DURATION;
     if (!state.deadline) {
       var initialRem = typeof state.remainingSeconds === 'number' ? state.remainingSeconds : dur;
       state.deadline = Date.now() + initialRem * 1000;
@@ -207,7 +209,8 @@
     updateTimerUI();
     render(true);
     if (reason === 'timeout') {
-      notice('Hết thời gian làm bài 80 phút! Hệ thống đã tự động thu bài và chấm điểm toàn bộ 50 câu trắc nghiệm và 5 câu tự luận.');
+      var mins = Math.round((state.durationSeconds || DEFAULT_DURATION) / 60);
+      notice('Hết thời gian làm bài ' + mins + ' phút! Hệ thống đã tự động thu bài và chấm điểm toàn bộ 50 câu trắc nghiệm và 5 câu tự luận.');
     } else {
       notice('Đã nộp bài thi thành công! Bạn có thể xem bảng điểm phân hóa hoặc bấm vào từng câu để xem lời giải chi tiết.');
     }
@@ -216,7 +219,7 @@
   function newEssays() {
     if (!state) return;
     if (isExamMode() && state.submitted) {
-      notice('Đề thi này đã nộp. Hãy bấm “Tạo đề mới” để bắt đầu đề thi 80 phút mới.');
+      notice('Đề thi này đã nộp. Hãy bấm “Tạo đề mới” để bắt đầu đề thi ' + DEFAULT_MINUTES + ' phút mới.');
       return;
     }
     var mTotal = mcqTotal();
@@ -238,7 +241,7 @@
     var mode = targetMode || (isExamMode() ? 'exam' : 'practice');
     if (ask && hasWork() && !(isExamMode() && state.submitted)) {
       var promptMsg = mode === 'exam'
-        ? 'Bắt đầu đề thi mới (80 phút · 50 câu trắc nghiệm phân hóa + 5 bài tự luận) sẽ thay bài làm hiện tại. Bạn có muốn tiếp tục?'
+        ? 'Bắt đầu đề thi mới (' + DEFAULT_MINUTES + ' phút · 50 câu trắc nghiệm phân hóa + 5 bài tự luận) sẽ thay bài làm hiện tại. Bạn có muốn tiếp tục?'
         : 'Tạo đề ôn tập mới sẽ thay bài làm hiện tại. Bạn có muốn tiếp tục?';
       if (!confirm(promptMsg)) return;
     }
@@ -268,7 +271,7 @@
           });
         }
         recordBankHistory(deckExam);
-        var dur = core.DURATION_SECONDS || 4800;
+        var dur = DEFAULT_DURATION;
         state = {
           version: 3,
           mode: 'exam',
@@ -429,9 +432,11 @@
         '<span class="leg-item"><span class="leg-dot leg-draft"></span>Nháp</span>' +
         '<span class="leg-item"><span class="leg-dot leg-cur"></span>Đang làm</span>';
     }
+    var examDur = state.durationSeconds || DEFAULT_DURATION;
+    var examMin = Math.round(examDur / 60);
     return '<aside class="exam-nav" aria-label="Danh sách câu hỏi">' +
-      '<div class="exam-nav-head"><h2>' + (exam ? 'Đề thi 80 phút' : 'Đề ôn tập') + '</h2>' +
-      '<p>' + (exam ? '50 trắc nghiệm phân hóa · 5 tự luận · 80:00' : '40 trắc nghiệm · 5 tự luận · Tự do thời gian') + '</p></div>' +
+      '<div class="exam-nav-head"><h2>' + (exam ? ('Đề thi ' + examMin + ' phút') : 'Đề ôn tập') + '</h2>' +
+      '<p>' + (exam ? ('50 trắc nghiệm phân hóa · 5 tự luận · ' + formatTime(examDur)) : '40 trắc nghiệm · 5 tự luận · Tự do thời gian') + '</p></div>' +
       '<div class="nav-section-title"><h3>Trắc nghiệm</h3><span class="nav-badge">' + mTotal + ' câu</span></div>' +
       '<div class="question-grid">' +
       state.deck.slice(0, mTotal).map(function (q, i) { return '<button type="button" class="qnav" data-go="' + i + '">' + (i + 1) + '</button>'; }).join('') +
@@ -686,7 +691,8 @@
     var total = deckTotal();
     var s = core.summary(state.deck, state.answers);
     if (isExamMode()) {
-      var dur = state.durationSeconds || core.DURATION_SECONDS || 4800;
+      var dur = state.durationSeconds || DEFAULT_DURATION;
+      var examMins = Math.round(dur / 60);
       var rem = typeof state.remainingSeconds === 'number' ? state.remainingSeconds : dur;
       var spent = Math.max(0, dur - rem);
       var mcqAns = state.deck.slice(0, 50).filter(isAnswered).length;
@@ -701,7 +707,7 @@
           '<div class="kpi-cell"><div class="kpi-label">Trắc nghiệm</div><div class="kpi-value">' + mcqAns + '/50</div><div class="kpi-sub">Đã chọn đáp án</div></div>' +
           '<div class="kpi-cell"><div class="kpi-label">Thời gian còn lại</div><div class="kpi-value">' + formatTime(rem) + '</div><div class="kpi-sub">Tự luận đã điền ' + essayAns + '/5</div></div>' +
           '</div>' +
-          '<div class="chapsum"><p>Đề thi sẽ được chấm điểm toàn bộ sau khi bạn bấm <b>“Nộp bài thi ngay”</b> hoặc khi hết thời gian 80 phút. Sau khi nộp bài, bạn có thể xem lại chi tiết từng câu để biết rõ chỗ nào mình đúng, chỗ nào mình sai cùng lời giải thích chi tiết.</p></div>' +
+          '<div class="chapsum"><p>Đề thi sẽ được chấm điểm toàn bộ sau khi bạn bấm <b>“Nộp bài thi ngay”</b> hoặc khi hết thời gian ' + examMins + ' phút. Sau khi nộp bài, bạn có thể xem lại chi tiết từng câu để biết rõ chỗ nào mình đúng, chỗ nào mình sai cùng lời giải thích chi tiết.</p></div>' +
           '<div class="fin-btns">' +
           '<button type="button" class="primary-btn" data-action="continue">Quay lại làm bài</button>' +
           '<button type="button" class="submit-exam-btn" data-action="submit-exam">' + ICONS.check + '<span>Nộp bài thi ngay</span></button>' +
@@ -709,8 +715,8 @@
           '</div></section>';
       }
 
-      var title = state.submittedReason === 'timeout' ? 'Kết quả bài thi (Hết giờ 80 phút)' : 'Kết quả bài thi (Đã nộp bài)';
-      var statusNote = 'Thời gian làm bài: ' + formatTime(spent) + ' / 80:00 · Bạn có thể bấm “Xem lại bài làm” hoặc chọn từng câu ở danh sách câu hỏi để xem chi tiết chỗ đúng, chỗ sai cùng giải thích.';
+      var title = state.submittedReason === 'timeout' ? ('Kết quả bài thi (Hết giờ ' + examMins + ' phút)') : 'Kết quả bài thi (Đã nộp bài)';
+      var statusNote = 'Thời gian làm bài: ' + formatTime(spent) + ' / ' + formatTime(dur) + ' · Bạn có thể bấm “Xem lại bài làm” hoặc chọn từng câu ở danh sách câu hỏi để xem chi tiết chỗ đúng, chỗ sai cùng giải thích.';
       var totalCorrect = s.mcq.correct + s.essay.correct;
       var mcqPct = Math.round(s.mcq.correct / 50 * 100);
       var totalPct = Math.round(totalCorrect / 55 * 100);
@@ -898,7 +904,8 @@
       state.idx = 0;
       state.finished = false;
       if (isExamMode()) {
-        var dur = state.durationSeconds || core.DURATION_SECONDS || 4800;
+        var dur = DEFAULT_DURATION;
+        state.durationSeconds = dur;
         state.remainingSeconds = dur;
         state.deadline = Date.now() + dur * 1000;
         state.submitted = false;

@@ -1,11 +1,11 @@
 /* Hợp đồng đề thi và chấm bài, không phụ thuộc giao diện.
    Hỗ trợ 2 chế độ:
    - Ôn tập (practice): 40 câu trắc nghiệm + 5 bài tự luận (không giới hạn thời gian)
-   - Làm bài thi (exam): 50 câu trắc nghiệm phân hóa (10 dễ + 15 trung bình + 25 khó xếp lộn xộn) + 5 bài tự luận (80 phút) */
+   - Làm bài thi (exam): 50 câu trắc nghiệm phân hóa (10 dễ + 15 trung bình + 25 khó xếp lộn xộn) + 5 bài tự luận (120 phút) */
 (function (global) {
   'use strict';
 
-  var DURATION_SECONDS = 80 * 60; // 80 phút = 4800 giây
+  var DURATION_SECONDS = 120 * 60; // 120 phút = 7200 giây
 
   function text(s) { return typeof s === 'string' && s.trim().length > 0; }
 
@@ -125,7 +125,7 @@
     return { correct: fields.every(Boolean), fields: fields };
   }
 
-  // Chấm toàn bộ đề thi khi nộp bài hoặc hết giờ (80 phút)
+  // Chấm toàn bộ đề thi khi nộp bài hoặc hết giờ (120 phút)
   function gradeExam(deck, answers) {
     var graded = {};
     deck.forEach(function (q) {

@@ -1,4 +1,4 @@
-# Đề OOP tự sinh: Chế độ Ôn tập (40 + 5) & Chế độ Làm bài thi 80 phút (50 phân hóa + 5)
+# Đề OOP tự sinh: Chế độ Ôn tập (40 + 5) & Chế độ Làm bài thi 120 phút (50 phân hóa + 5)
 
 ## Chạy
 
@@ -19,13 +19,13 @@
   - Không trùng lặp câu hỏi trong cùng một kho và trong cùng một đề.
   - Giữa các lần tạo đề Ôn tập và Đề thi liên tiếp, hệ thống lưu lịch sử `bankId` đã ra (`recentHistory` và `localStorage`) để không lặp lại câu hỏi cũ cho tới khi kho của nhóm độ khó/form đó được rút hết.
 
-## Hai chế độ: Ôn tập & Làm bài thi (80 phút)
+## Hai chế độ: Ôn tập & Làm bài thi (120 phút)
 
 1. **📖 Ôn tập (`#practiceModeBtn`):**
    - **40 câu trắc nghiệm** (8 câu/chương, đủ 3 mức Dễ / Trung bình / Khó, kèm nhãn mức độ) lấy từ **kho 1.500 câu** + **5 bài tự luận điền khuyết**.
    - Không giới hạn thời gian; kiểm tra từng câu ngay lập tức; cho phép **Xem đáp án** sau 2 lần thử sai; có nút **Đổi 5 bài tự luận** riêng.
-2. **⏱️ Làm bài thi (80 phút) (`#examModeBtn`):**
-   - Giới hạn thời gian **80 phút (`80:00`)** với đồng hồ đếm ngược trực tiếp (tự lưu thời gian còn lại khi tải lại trang và **tự động thu bài, chấm điểm** khi hết giờ, hoặc nộp sớm bằng nút **Nộp bài thi ✓**).
+2. **⏱️ Làm bài thi (120 phút) (`#examModeBtn`):**
+   - Giới hạn thời gian **120 phút (`120:00`)** với đồng hồ đếm ngược trực tiếp (tự lưu thời gian còn lại khi tải lại trang và **tự động thu bài, chấm điểm** khi hết giờ, hoặc nộp sớm bằng nút **Nộp bài thi ✓**).
    - **50 câu trắc nghiệm phân hóa**: đúng **10 câu Dễ + 15 câu Trung bình + 25 câu Khó** lấy từ **kho 1.500 câu**, **xếp lộn xộn nhau**.
    - **5 bài tự luận điền khuyết**: lấy từ kho 300 bài tự luận (đảm bảo đủ cả 3 form Đóng gói, Kế thừa, Đa hình và 5 hệ lớp khác nhau).
    - Khi nộp bài hoặc hết giờ, hệ thống chấm điểm toàn bộ 55 câu và thống kê chi tiết theo từng mức độ (**Dễ /10 · Trung bình /15 · Khó /25 · Tự luận /5**), đồng thời cho phép xem lại lời giải từng câu.
@@ -43,11 +43,11 @@
 
 | File | Chức năng |
 |---|---|
-| `index.html`, `style.css` | Trang, nút chuyển chế độ Ôn tập / Làm bài thi (80 phút), đồng hồ đếm ngược và giao diện |
+| `index.html`, `style.css` | Trang, nút chuyển chế độ Ôn tập / Làm bài thi (120 phút), đồng hồ đếm ngược và giao diện |
 | `mcq-generators.js` | Kho 1.500 câu trắc nghiệm (500 Dễ + 500 TB + 500 Khó = 600 sinh tham số + 900 lý thuyết C#), bộ sinh đề Ôn tập (40 câu) và Đề thi phân hóa (50 câu) |
 | `essay-generators.js` | Kho 300 bài tự luận điền khuyết (100 bài/form × 3 form ảnh) có hướng dẫn đầy đủ |
 | `exam-core.js` | Xác thực đề Ôn tập (40+5) & Đề thi (50+5), chấm bài, thống kê theo độ khó, khôi phục bài lưu |
-| `exam-app.js` | Điều hướng, đồng hồ 80 phút, tự động nộp bài khi hết giờ, lưu nháp, kiểm tra/xem đáp án |
+| `exam-app.js` | Điều hướng, đồng hồ 120 phút, tự động nộp bài khi hết giờ, lưu nháp, kiểm tra/xem đáp án |
 | `tests/` | Kiểm thử kho 1.500 TN, kho 300 TL, quy tắc chống trùng lặp, chấm bài và trình duyệt |
 
 Các file `app.js`, `questions.js`, `generators.js` cũ được giữ nguyên nhưng không còn nạp vào trang.

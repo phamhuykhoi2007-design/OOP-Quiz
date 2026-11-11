@@ -95,7 +95,7 @@ Bài tập `Bài tập ôn tập Lớp đối tượng đóng gói.pdf` được
 
 - Hợp đồng template mặc định: `globalThis.ExamMCQ.generate(rng)` trả về mảng 40 câu từ 56 template.
 - Chế độ Ôn tập từ kho đầy đủ: `globalThis.ExamMCQ.generatePractice(rng, options)` (hoặc `generate(rng, { fromBank: true })`) rút 40 câu (8 câu/chương) từ kho 1.500 câu (600 câu sinh tham số + 900 câu lý thuyết C# Chương 2–5).
-- Chế độ Thi 80 phút: `globalThis.ExamMCQ.generateExam(rng, options)` rút 50 câu (10 Dễ + 15 Trung bình + 25 Khó) từ kho 1.500 câu.
+- Chế độ Thi 120 phút: `globalThis.ExamMCQ.generateExam(rng, options)` rút 50 câu (10 Dễ + 15 Trung bình + 25 Khó) từ kho 1.500 câu.
 - `rng` là tùy chọn; mặc định dùng `Math.random`.
 - Mọi câu có `type: "mcq"`, `options` gồm 4 chuỗi khác nhau, `answer` là 0..3.
 - `code` chỉ xuất hiện khi câu hỏi cần đoạn code; các câu hỏi lỗi biên dịch
