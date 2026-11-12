@@ -945,6 +945,48 @@ a,
   border: 1px solid var(--red-border);
 }
 
+.diff-theory {
+  background-color: var(--blue-light);
+  color: var(--blue-dark);
+  border: 1px solid var(--blue-border);
+}
+
+.diff-output {
+  background-color: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
+.diff-upcasting {
+  background-color: #ecfeff;
+  color: #0e7490;
+  border: 1px solid #a5f3fc;
+}
+
+.diff-downcasting {
+  background-color: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+[data-theme="dark"] .diff-output {
+  background-color: rgba(139, 92, 246, 0.14);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.36);
+}
+
+[data-theme="dark"] .diff-upcasting {
+  background-color: rgba(6, 182, 212, 0.14);
+  color: #67e8f9;
+  border: 1px solid rgba(6, 182, 212, 0.36);
+}
+
+[data-theme="dark"] .diff-downcasting {
+  background-color: rgba(249, 115, 22, 0.14);
+  color: #fdba74;
+  border: 1px solid rgba(249, 115, 22, 0.36);
+}
+
 .qcount {
   font-size: 13px;
   font-weight: 600;

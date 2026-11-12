@@ -1,7 +1,7 @@
 /* Hợp đồng đề thi và chấm bài, không phụ thuộc giao diện.
    Hỗ trợ 2 chế độ:
    - Ôn tập (practice): 40 câu trắc nghiệm + 5 bài tự luận (không giới hạn thời gian)
-   - Làm bài thi (exam): 50 câu trắc nghiệm phân hóa (10 dễ + 15 trung bình + 25 khó xếp lộn xộn) + 5 bài tự luận (120 phút) */
+   - Làm bài thi (exam): 50 câu trắc nghiệm phân nhóm (16 Dễ + 10 Lý thuyết C# + 8 Dự đoán kết quả + 8 Upcasting + 8 Downcasting xếp lộn xộn) + 5 bài tự luận (120 phút) */
 (function (global) {
   'use strict';
 
@@ -12,9 +12,9 @@
   function validQuestion(q) {
     if (!q || !text(q.id) || !text(q.title) || !text(q.explain) || !text(q.source) ||
         !Number.isInteger(q.ch) || q.ch < 1 || q.ch > 5) return false;
-    if (q.type === 'mcq') return Array.isArray(q.options) && q.options.length === 4 &&
-      q.options.every(text) && new Set(q.options).size === 4 &&
-      Number.isInteger(q.answer) && q.answer >= 0 && q.answer < 4 &&
+    if (q.type === 'mcq') return Array.isArray(q.options) && (q.options.length === 4 || q.options.length === 5) &&
+      q.options.every(text) && new Set(q.options).size === q.options.length &&
+      Number.isInteger(q.answer) && q.answer >= 0 && q.answer < q.options.length &&
       (q.code === undefined || typeof q.code === 'string');
     if (q.type !== 'essay' || !Array.isArray(q.requirements) || !q.requirements.length ||
         !q.requirements.every(text) || !Array.isArray(q.lines) || !q.lines.length ||
@@ -52,9 +52,11 @@
     if (!mcqs.every(function (q) { return q.type === 'mcq'; })) return false;
     if (!essays.every(function (q) { return q.type === 'essay'; })) return false;
     var easyCount = mcqs.filter(function (q) { return q.difficulty === 'easy'; }).length;
-    var mediumCount = mcqs.filter(function (q) { return q.difficulty === 'medium'; }).length;
-    var hardCount = mcqs.filter(function (q) { return q.difficulty === 'hard'; }).length;
-    return easyCount === 10 && mediumCount === 15 && hardCount === 25;
+    var theoryCount = mcqs.filter(function (q) { return q.difficulty === 'theory'; }).length;
+    var outputCount = mcqs.filter(function (q) { return q.difficulty === 'output'; }).length;
+    var upCount = mcqs.filter(function (q) { return q.difficulty === 'upcasting'; }).length;
+    var downCount = mcqs.filter(function (q) { return q.difficulty === 'downcasting'; }).length;
+    return easyCount === 16 && theoryCount === 10 && outputCount === 8 && upCount === 8 && downCount === 8;
   }
 
   function validate(deck, options) {
@@ -65,7 +67,7 @@
 
   function buildExam(rng, options) {
     var fn = rng || Math.random;
-    var opts = Object.assign({ mode: 'exam', easy: 10, medium: 15, hard: 25, fromBank: true }, options || {});
+    var opts = Object.assign({ mode: 'exam', easy: 16, theory: 10, output: 8, upcasting: 8, downcasting: 8, fromBank: true }, options || {});
     var mcqs = typeof global.ExamMCQ.generateExam === 'function'
       ? global.ExamMCQ.generateExam(fn, opts)
       : global.ExamMCQ.generate(fn, opts);
@@ -74,7 +76,7 @@
       : global.ExamEssay.generate(fn, opts);
     var deck = mcqs.concat(essays);
     if (!validateExam(deck)) {
-      throw new Error('Bộ sinh đề thi phải tạo đúng 50 câu trắc nghiệm (10 dễ, 15 trung bình, 25 khó) và 5 bài tự luận hợp lệ.');
+      throw new Error('Bộ sinh đề thi phải tạo đúng 50 câu trắc nghiệm (16 dễ, 10 lý thuyết C#, 8 dự đoán kết quả, 8 upcasting, 8 downcasting) và 5 bài tự luận hợp lệ.');
     }
     return deck;
   }
@@ -97,8 +99,9 @@
     var isExam = state && (state.mode === 'exam' || (Array.isArray(state.deck) && state.deck.length === 55));
     var mcqCount = isExam ? 50 : 40;
     var fn = rng || Math.random;
-    var newEssays = isExam && typeof global.ExamEssay.generateExam === 'function'
-      ? global.ExamEssay.generateExam(fn, { mode: 'exam', fromBank: true })
+    var fromBank = isExam || Boolean(state && state.fromBank) || (state && Array.isArray(state.deck) && state.deck.slice(mcqCount).some(function (q) { return Boolean(q.bankId); }));
+    var newEssays = fromBank && typeof global.ExamEssay.generateExam === 'function'
+      ? global.ExamEssay.generateExam(fn, { mode: isExam ? 'exam' : 'practice', fromBank: true, trackHistory: true })
       : global.ExamEssay.generate(fn);
     var deck = state.deck.slice(0, mcqCount).concat(newEssays);
     if (!validate(deck, { mode: isExam ? 'exam' : 'practice' })) {
@@ -162,8 +165,10 @@
       essay: { total: 0, correct: 0, revealed: 0 },
       byDifficulty: {
         easy: { total: 0, correct: 0, revealed: 0 },
-        medium: { total: 0, correct: 0, revealed: 0 },
-        hard: { total: 0, correct: 0, revealed: 0 }
+        theory: { total: 0, correct: 0, revealed: 0 },
+        output: { total: 0, correct: 0, revealed: 0 },
+        upcasting: { total: 0, correct: 0, revealed: 0 },
+        downcasting: { total: 0, correct: 0, revealed: 0 }
       },
       completed: 0
     };
@@ -197,7 +202,7 @@
         var q = s.deck[i], a = s.answers[q.id];
         if (!a) continue;
         if (typeof a !== 'object' || (a.status && a.status !== 'ok' && a.status !== 'revealed')) return null;
-        if (q.type === 'mcq' && a.value !== null && a.value !== undefined && (!Number.isInteger(a.value) || a.value < 0 || a.value > 3)) return null;
+        if (q.type === 'mcq' && a.value !== null && a.value !== undefined && (!Number.isInteger(a.value) || a.value < 0 || a.value >= q.options.length)) return null;
         if (q.type === 'essay' && (!Array.isArray(a.value) || a.value.length !== q.blanks.length || !a.value.every(function (v) { return typeof v === 'string'; }))) return null;
         if (a.status && !check(q, a.value).correct) return null;
         var entry = {

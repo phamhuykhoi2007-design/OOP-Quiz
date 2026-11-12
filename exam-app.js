@@ -1,6 +1,6 @@
 /* Đề tự sinh offline:
-   - Chế độ Ôn tập (practice): 40 câu trắc nghiệm (từ kho 1500 câu, giữ nhãn Dễ / Trung bình / Khó) + 5 bài tự luận điền khuyết (không giới hạn thời gian)
-   - Chế độ Làm bài thi (exam): 120 phút, 50 câu trắc nghiệm phân hóa (10 Dễ + 15 Trung bình + 25 Khó xếp lộn xộn từ kho 1500 câu) + 5 bài tự luận (từ kho 300 câu) */
+   - Chế độ Ôn tập (practice): 40 câu trắc nghiệm (từ kho 840 câu, 8 câu/chương) + 5 bài tự luận điền khuyết (từ kho 350 bài, không giới hạn thời gian)
+   - Chế độ Làm bài thi (exam): 120 phút, 50 câu trắc nghiệm 5 nhóm (16 Dễ + 10 Lý thuyết C# + 8 Dự đoán kết quả + 8 Upcasting + 8 Downcasting xếp lộn xộn từ kho 840 câu) + 5 bài tự luận (từ kho 350 bài) */
 (function () {
   'use strict';
 
@@ -10,7 +10,13 @@
   var DEFAULT_DURATION = (core && core.DURATION_SECONDS) || 7200;
   var DEFAULT_MINUTES = Math.round(DEFAULT_DURATION / 60);
   var chapters = { 1: 'Tổng quan OOP', 2: 'Lớp và đối tượng', 3: 'Đóng gói', 4: 'Kế thừa', 5: 'Đa hình' };
-  var diffLabels = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' };
+  var diffLabels = {
+    easy: 'Dễ',
+    theory: 'Lý thuyết C#',
+    output: 'Dự đoán kết quả',
+    upcasting: 'Upcasting',
+    downcasting: 'Downcasting'
+  };
 
   var ICONS = {
     check: '<svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>',
@@ -78,8 +84,8 @@
       });
       var mcqArr = Array.from(mcqSet);
       var essayArr = Array.from(essaySet);
-      if (mcqArr.length > 900) mcqArr = mcqArr.slice(mcqArr.length - 750);
-      if (essayArr.length > 100) essayArr = essayArr.slice(essayArr.length - 75);
+      if (mcqArr.length > 700) mcqArr = mcqArr.slice(mcqArr.length - 550);
+      if (essayArr.length > 120) essayArr = essayArr.slice(essayArr.length - 85);
       localStorage.setItem(HISTORY_KEY, JSON.stringify({ mcq: mcqArr, essay: essayArr }));
     } catch (e) {}
   }
@@ -233,7 +239,7 @@
       state = next;
       recordBankHistory(state.deck.slice(mTotal));
       var saved = save(); render(true);
-      if (saved) notice('Đã tạo 5 bài tự luận mới từ kho 300 bài theo form ảnh. ' + mTotal + ' câu trắc nghiệm và bài làm trắc nghiệm được giữ nguyên.');
+      if (saved) notice('Đã tạo 5 bài tự luận mới từ kho 350 bài theo form ảnh. ' + mTotal + ' câu trắc nghiệm và bài làm trắc nghiệm được giữ nguyên.');
     } catch (e) { notice('Chưa đổi được tự luận: ' + e.message + ' Bài làm hiện tại chưa bị thay đổi.'); }
   }
 
@@ -241,7 +247,7 @@
     var mode = targetMode || (isExamMode() ? 'exam' : 'practice');
     if (ask && hasWork() && !(isExamMode() && state.submitted)) {
       var promptMsg = mode === 'exam'
-        ? 'Bắt đầu đề thi mới (' + DEFAULT_MINUTES + ' phút · 50 câu trắc nghiệm phân hóa + 5 bài tự luận) sẽ thay bài làm hiện tại. Bạn có muốn tiếp tục?'
+        ? 'Bắt đầu đề thi mới (' + DEFAULT_MINUTES + ' phút · 50 câu trắc nghiệm 5 nhóm + 5 bài tự luận) sẽ thay bài làm hiện tại. Bạn có muốn tiếp tục?'
         : 'Tạo đề ôn tập mới sẽ thay bài làm hiện tại. Bạn có muốn tiếp tục?';
       if (!confirm(promptMsg)) return;
     }
@@ -254,18 +260,22 @@
         try {
           deckExam = core.buildExam(null, {
             mode: 'exam',
-            easy: 10,
-            medium: 15,
-            hard: 25,
+            easy: 16,
+            theory: 10,
+            output: 8,
+            upcasting: 8,
+            downcasting: 8,
             fromBank: true,
             excludeIds: hist.mcq.concat(hist.essay)
           });
         } catch (innerErr) {
           deckExam = core.buildExam(null, {
             mode: 'exam',
-            easy: 10,
-            medium: 15,
-            hard: 25,
+            easy: 16,
+            theory: 10,
+            output: 8,
+            upcasting: 8,
+            downcasting: 8,
             fromBank: true,
             excludeIds: []
           });
@@ -436,7 +446,7 @@
     var examMin = Math.round(examDur / 60);
     return '<aside class="exam-nav" aria-label="Danh sách câu hỏi">' +
       '<div class="exam-nav-head"><h2>' + (exam ? ('Đề thi ' + examMin + ' phút') : 'Đề ôn tập') + '</h2>' +
-      '<p>' + (exam ? ('50 trắc nghiệm phân hóa · 5 tự luận · ' + formatTime(examDur)) : '40 trắc nghiệm · 5 tự luận · Tự do thời gian') + '</p></div>' +
+      '<p>' + (exam ? ('50 trắc nghiệm 5 nhóm · 5 tự luận · ' + formatTime(examDur)) : '40 trắc nghiệm · 5 tự luận · Tự do thời gian') + '</p></div>' +
       '<div class="nav-section-title"><h3>Trắc nghiệm</h3><span class="nav-badge">' + mTotal + ' câu</span></div>' +
       '<div class="question-grid">' +
       state.deck.slice(0, mTotal).map(function (q, i) { return '<button type="button" class="qnav" data-go="' + i + '">' + (i + 1) + '</button>'; }).join('') +
@@ -444,7 +454,7 @@
       '<div class="question-grid essay-grid">' +
       state.deck.slice(mTotal).map(function (q, i) { return '<button type="button" class="qnav" data-go="' + (mTotal + i) + '">B' + (i + 1) + '</button>'; }).join('') +
       '</div><div class="nav-legend-box"><p class="nav-legend">' + legendHTML + '</p>' +
-      '<div class="nav-kbd-hint"><span class="kbd-key">1–4</span> chọn · <span class="kbd-key">Enter</span> kiểm tra · <span class="kbd-key">← →</span> đổi câu</div></div>' +
+      '<div class="nav-kbd-hint"><span class="kbd-key">1–5 / A–E</span> chọn · <span class="kbd-key">Enter</span> kiểm tra · <span class="kbd-key">← →</span> đổi câu</div></div>' +
       (exam && !state.submitted ? '<button type="button" class="submit-exam-btn nav-submit-btn" data-action="submit-exam">' + ICONS.check + '<span>Nộp bài thi ngay</span></button>' : '') +
       '<button type="button" class="secondary-btn" data-action="summary">Xem tổng kết</button></aside>';
   }
@@ -491,7 +501,7 @@
     var exam = isExamMode();
     var hideCheckButtons = exam;
     var diffChip = (q.type === 'mcq' && q.difficulty && diffLabels[q.difficulty])
-      ? '<span class="diff-chip diff-' + esc(q.difficulty) + '">Mức độ: ' + esc(diffLabels[q.difficulty]) + '</span>'
+      ? '<span class="diff-chip diff-' + esc(q.difficulty) + '">' + (q.difficulty === 'easy' ? 'Mức độ: ' : 'Dạng: ') + esc(diffLabels[q.difficulty]) + '</span>'
       : '';
     var html = '<section class="card question-card"><div class="qtop"><div class="qchips"><span class="qchip">Chương ' + q.ch + ' · ' + chapters[q.ch] +
       '</span>' + diffChip + '</div><span class="qcount">' +
@@ -502,8 +512,9 @@
         html += '<div class="code-box"><div class="code-box-header"><span class="code-file">' + ICONS.code + '<span>Snippet.cs</span></span><span class="code-lang">C# Console</span></div><pre class="codeblock mcq-code"><code>' + esc(q.code) + '</code></pre></div>';
       }
       html += '<fieldset class="mcq-options"><legend>Chọn một đáp án đúng</legend>' + q.options.map(function (option, i) {
+        var optLetter = 'ABCDE'[i];
         return '<label class="mcq-option" data-opt="' + i + '"><input type="radio" name="choice" value="' + i + '"' + (a.value === i ? ' checked' : '') +
-          '><span class="opt-indicator">' + 'ABCD'[i] + '</span><span class="opt-body"><b>' + 'ABCD'[i] + '.</b> ' + escCode(option) + '</span>' +
+          '><span class="opt-indicator">' + optLetter + '</span><span class="opt-body"><b>' + optLetter + '.</b> ' + escCode(option) + '</span>' +
           '<span class="opt-tag hidden"></span></label>';
       }).join('') + '</fieldset>';
     } else {
@@ -640,13 +651,13 @@
         var uChoice = (a.userValue !== undefined) ? a.userValue : a.value;
         if (uChoice === q.answer) {
           feedback.className = 'fb-text ok';
-          feedback.innerHTML = ICONS.check + '<span>Chính xác! Bạn đã chọn đúng đáp án ' + 'ABCD'[q.answer] + '.</span>';
+          feedback.innerHTML = ICONS.check + '<span>Chính xác! Bạn đã chọn đúng đáp án ' + 'ABCDE'[q.answer] + '.</span>';
         } else if (uChoice !== null && uChoice !== undefined) {
           feedback.className = 'fb-text bad';
-          feedback.innerHTML = ICONS.x + '<span>Chưa chính xác: Bạn đã chọn ' + 'ABCD'[uChoice] + '; đáp án đúng là ' + 'ABCD'[q.answer] + '.</span>';
+          feedback.innerHTML = ICONS.x + '<span>Chưa chính xác: Bạn đã chọn ' + 'ABCDE'[uChoice] + '; đáp án đúng là ' + 'ABCDE'[q.answer] + '.</span>';
         } else {
           feedback.className = 'fb-text bad';
-          feedback.innerHTML = ICONS.x + '<span>Chưa chọn đáp án khi nộp bài; đáp án đúng là ' + 'ABCD'[q.answer] + '.</span>';
+          feedback.innerHTML = ICONS.x + '<span>Chưa chọn đáp án khi nộp bài; đáp án đúng là ' + 'ABCDE'[q.answer] + '.</span>';
         }
       } else {
         var uVal = (a.userValue !== undefined) ? a.userValue : a.value;
@@ -727,15 +738,16 @@
         '<div class="kpi-cell"><div class="kpi-label">Trắc nghiệm</div><div class="kpi-value">' + s.mcq.correct + '/50</div><div class="kpi-sub">' + mcqPct + '% chính xác</div></div>' +
         '<div class="kpi-cell"><div class="kpi-label">Tự luận điền khuyết</div><div class="kpi-value">' + s.essay.correct + '/5</div><div class="kpi-sub">Thời gian ' + formatTime(spent) + '</div></div>' +
         '</div>' +
-        '<div class="chapsum"><h2>Trắc nghiệm phân hóa (50 câu)</h2>' +
+        '<div class="chapsum"><h2>Trắc nghiệm phân nhóm (50 câu)</h2>' +
         '<p>Tổng trắc nghiệm đúng: <b>' + s.mcq.correct + '/50</b> (' + mcqPct + '%)</p>' +
         '<div class="summary-bar-track" aria-hidden="true"><div class="summary-bar-fill" style="width:' + mcqPct + '%"></div></div>' +
         '<ul class="diff-breakdown">' +
-        '<li><span class="diff-chip diff-easy">Mức Dễ (10 câu)</span><span class="diff-score"><b>' + s.byDifficulty.easy.correct + '/10</b> câu đúng</span></li>' +
-        '<li><span class="diff-chip diff-medium">Mức Trung bình (15 câu)</span><span class="diff-score"><b>' + s.byDifficulty.medium.correct + '/15</b> câu đúng</span></li>' +
-        '<li><span class="diff-chip diff-hard">Mức Khó (25 câu)</span><span class="diff-score"><b>' + s.byDifficulty.hard.correct + '/25</b> câu đúng</span></li>' +
+        ['easy', 'theory', 'output', 'upcasting', 'downcasting'].map(function (cat) {
+          var b = s.byDifficulty[cat] || { total: 0, correct: 0 };
+          return '<li><span class="diff-chip diff-' + cat + '">' + (diffLabels[cat] || cat) + ' (' + b.total + ' câu)</span><span class="diff-score"><b>' + b.correct + '/' + b.total + '</b> câu đúng</span></li>';
+        }).join('') +
         '</ul>' +
-        '<h2>Tự luận điền khuyết (5 bài trong kho 300 câu)</h2>' +
+        '<h2>Tự luận điền khuyết (5 bài trong kho 350 câu)</h2>' +
         '<p>Tự làm đúng toàn bài: <b>' + s.essay.correct + '/5</b></p>' +
         '<div class="summary-bar-track" aria-hidden="true"><div class="summary-bar-fill fill-green" style="width:' + Math.round(s.essay.correct / 5 * 100) + '%"></div></div>' +
         '<p>Tổng đúng: <b>' + totalCorrect + '/55</b> câu (' + totalPct + '%)</p></div>' +
@@ -744,14 +756,12 @@
     }
     var pracMcqPct = Math.round(s.mcq.correct / mTotal * 100);
     var pracEssayPct = Math.round(s.essay.correct / 5 * 100);
-    var pracDiffTotal = s.byDifficulty.easy.total + s.byDifficulty.medium.total + s.byDifficulty.hard.total;
-    var pracDiffHTML = pracDiffTotal > 0 ? (
-      '<ul class="diff-breakdown">' +
-      '<li><span class="diff-chip diff-easy">Mức Dễ (' + s.byDifficulty.easy.total + ' câu)</span><span class="diff-score"><b>' + s.byDifficulty.easy.correct + '/' + s.byDifficulty.easy.total + '</b> câu đúng</span></li>' +
-      '<li><span class="diff-chip diff-medium">Mức Trung bình (' + s.byDifficulty.medium.total + ' câu)</span><span class="diff-score"><b>' + s.byDifficulty.medium.correct + '/' + s.byDifficulty.medium.total + '</b> câu đúng</span></li>' +
-      '<li><span class="diff-chip diff-hard">Mức Khó (' + s.byDifficulty.hard.total + ' câu)</span><span class="diff-score"><b>' + s.byDifficulty.hard.correct + '/' + s.byDifficulty.hard.total + '</b> câu đúng</span></li>' +
-      '</ul>'
-    ) : '';
+    var pracDiffRows = ['easy', 'theory', 'output', 'upcasting', 'downcasting'].map(function (cat) {
+      var b = s.byDifficulty[cat];
+      if (!b || b.total <= 0) return '';
+      return '<li><span class="diff-chip diff-' + cat + '">' + (diffLabels[cat] || cat) + ' (' + b.total + ' câu)</span><span class="diff-score"><b>' + b.correct + '/' + b.total + '</b> câu đúng</span></li>';
+    }).filter(Boolean);
+    var pracDiffHTML = pracDiffRows.length ? ('<ul class="diff-breakdown">' + pracDiffRows.join('') + '</ul>') : '';
     return '<section class="card finish"><h1 id="questionTitle" tabindex="-1">' + (s.completed === total ? 'Tổng kết đề luyện tập' : 'Tổng kết hiện tại') + '</h1>' +
       '<p>' + (total - s.completed ? 'Còn ' + (total - s.completed) + ' câu/bài chưa hoàn thành. Bạn có thể quay lại làm tiếp.' : 'Bạn đã xử lý đủ ' + mTotal + ' câu trắc nghiệm và 5 bài tự luận.') + '</p>' +
       '<div class="summary-kpi-strip">' +
@@ -978,7 +988,7 @@
         var a = answer(q);
         var locked = !exam ? !!a.status : !!state.submitted;
         var keyLower = String(event.key || '').toLowerCase();
-        var optIdx = { '1': 0, '2': 1, '3': 2, '4': 3, 'a': 0, 'b': 1, 'c': 2, 'd': 3 }[keyLower];
+        var optIdx = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, 'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4 }[keyLower];
         if (optIdx !== undefined && !locked && optIdx < q.options.length) {
           event.preventDefault();
           a.value = optIdx;
