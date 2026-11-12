@@ -53,7 +53,7 @@ test('Kho trắc nghiệm có sẵn đúng 840 câu (340 dễ, 200 theory, 120 o
     assert.ok(!sigs.has(sig), 'Không được trùng nội dung câu hỏi trong kho: ' + q.title);
     sigs.add(sig);
 
-    assert.ok(q.options.length === 4 || q.options.length === 5, 'Số lựa chọn phải là 4 hoặc 5: ' + q.options.length);
+    assert.equal(q.options.length, 5, 'Toàn bộ 840 câu trắc nghiệm phải có đúng 5 lựa chọn A-E: ' + q.options.length);
     assert.equal(new Set(q.options).size, q.options.length);
     assert.ok(q.options.every(o => typeof o === 'string' && o.trim().length > 0));
     assert.ok(Number.isInteger(q.ch) && q.ch >= 1 && q.ch <= 5);

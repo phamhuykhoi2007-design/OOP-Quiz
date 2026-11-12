@@ -53,8 +53,8 @@
       var s = String(spec.options[i]);
       if (opts.indexOf(s) === -1) opts.push(s);
     }
-    if (opts.length !== 4) {
-      throw new Error("Template " + spec.templateId + " phải có 4 đáp án khác nhau, hiện có " + opts.length);
+    if (opts.length !== 4 && opts.length !== 5) {
+      throw new Error("Template " + spec.templateId + " phải có 4 hoặc 5 đáp án khác nhau, hiện có " + opts.length);
     }
     var correct = String(spec.options[0]);
     var shuffled = shuffle(rng, opts);
@@ -1921,7 +1921,8 @@
             "Trạng thái (state) được thể hiện qua các thuộc tính của đối tượng " + d.cls,
             "Hành vi (behavior) được thể hiện qua các phương thức của đối tượng " + d.cls,
             "Trình biên dịch (compiler) dùng để dịch lớp " + d.cls + " sang mã máy",
-            "Cấu trúc kế thừa đa cấp của lớp " + d.cls
+            "Cấu trúc kế thừa đa cấp của lớp " + d.cls,
+            "Bộ nhớ heap lưu trữ toàn bộ các lớp của ứng dụng"
           ],
           explain: "Theo Chương 1 (Trạng thái và Hành vi), thông tin như " + d.f1 + ", " + d.f2 + " biểu diễn trạng thái (thuộc tính) của đối tượng " + d.cls + "; còn các thao tác xử lý mới là hành vi (phương thức)."
         });
@@ -1933,7 +1934,8 @@
           "Hành vi (behavior) của đối tượng, được cài đặt bằng các phương thức (methods)",
           "Trạng thái tĩnh không bao giờ thay đổi của đối tượng",
           "Ngôn ngữ máy nhị phân gồm các bit 0 và 1",
-          "Biểu đồ Use Case trong giai đoạn lập kế hoạch"
+          "Biểu đồ Use Case trong giai đoạn lập kế hoạch",
+          "Không gian tên (namespace) chứa các lớp của hệ thống"
         ],
         explain: "Các thao tác mà đối tượng " + d.cls + " thực hiện để đáp trả thông điệp từ bên ngoài (" + d.m1 + ", " + d.m2 + ") chính là hành vi của đối tượng, được biểu diễn bằng phương thức."
       });
@@ -1948,7 +1950,8 @@
             d.cls + " x = new " + d.cls + "();",
             "class " + d.cls + " x = new " + d.cls + "();",
             d.cls + " x = " + d.cls + "();",
-            "new " + d.cls + " x = new();"
+            "new " + d.cls + " x = new();",
+            "create " + d.cls + " x = new " + d.cls + "();"
           ],
           explain: "Cú pháp tạo đối tượng trong C# (Chương 2 - LO2) là: <TênLớp> <TênBiến> = new <TênLớp>(DanhSáchĐốiSố);."
         });
@@ -1960,7 +1963,8 @@
           "~" + d.cls + "() { }",
           "public void ~" + d.cls + "() { }",
           "~" + d.cls + "(int x) { }",
-          "private ~" + d.cls + "() { }"
+          "private ~" + d.cls + "() { }",
+          "delete " + d.cls + "() { }"
         ],
         explain: "Theo Chương 2 (LO4), phương thức hủy trùng tên lớp, có dấu ngã `~` phía trước, không có kiểu trả về, không có phạm vi truy cập và không nhận tham số."
       });
@@ -1975,7 +1979,8 @@
             "private",
             "public",
             "protected",
-            "internal"
+            "internal",
+            "protected internal"
           ],
           explain: "Theo Chương 3 (LO1), chỉ thị `private` giới hạn phạm vi truy cập chỉ bên trong chính lớp `" + d.cls + "`, giúp che giấu dữ liệu nội tại."
         });
@@ -1987,7 +1992,8 @@
           d.cls + ".ThongKe();",
           "new " + d.cls + "().ThongKe();",
           "this.ThongKe();",
-          "base.ThongKe();"
+          "base.ThongKe();",
+          "Program.ThongKe();"
         ],
         explain: "Theo Chương 3 (LO3), thành viên tĩnh (`static`) thuộc về lớp chứ không thuộc về từng đối tượng, nên phải được gọi thông qua tên lớp: `" + d.cls + ".ThongKe();`."
       });
@@ -2003,7 +2009,8 @@
             "class " + subName + " : " + d.cls + " { }",
             "class " + d.cls + " : " + subName + " { }",
             "class " + subName + " extends " + d.cls + " { }",
-            "class " + subName + " inherits " + d.cls + " { }"
+            "class " + subName + " inherits " + d.cls + " { }",
+            "class " + subName + " implements " + d.cls + " { }"
           ],
           explain: "Theo Chương 4 (LO1), cú pháp kế thừa trong C# là `class <TênLớpCon> : <TênLớpCơSở> { }`."
         });
@@ -2015,7 +2022,8 @@
           "Các trường private, phương thức khởi tạo (constructor) và phương thức hủy (destructor)",
           "Các phương thức có phạm vi truy cập public",
           "Các thuộc tính và trường có phạm vi truy cập protected",
-          "Các phương thức virtual có phạm vi public"
+          "Các phương thức virtual có phạm vi public",
+          "Các thuộc tính public có đầy đủ get và set"
         ],
         explain: "Theo Chương 4 (LO1), lớp dẫn xuất không kế thừa các thành viên private, phương thức khởi tạo và phương thức hủy của lớp cơ sở."
       });
@@ -2030,7 +2038,8 @@
           "public abstract double " + d.m2 + "();",
           "public abstract double " + d.m2 + "() { return 0; }",
           "private abstract double " + d.m2 + "();",
-          "public virtual abstract double " + d.m2 + "();"
+          "public virtual abstract double " + d.m2 + "();",
+          "public pure virtual double " + d.m2 + "();"
         ],
         explain: "Theo Chương 5 (LO2), phương thức thuần ảo (`abstract`) trong lớp trừu tượng không có phần thân hàm `{ ... }`, kết thúc bằng dấu `;` và không được là `private`."
       });
@@ -2042,7 +2051,8 @@
         "Lớp " + d.cls + " phải định nghĩa phương thức public " + f.ret + " " + f.m + "() có phần thân cụ thể (không cần từ khóa override)",
         "Lớp " + d.cls + " bắt buộc phải dùng từ khóa override khi cài đặt " + f.m + "()",
         "Giao diện " + f.iface + " có thể được khởi tạo trực tiếp bằng lệnh new " + f.iface + "()",
-        "Giao diện " + f.iface + " được phép khai báo các trường biến instance private"
+        "Giao diện " + f.iface + " được phép khai báo các trường biến instance private",
+        "Một lớp trong C# chỉ được phép triển khai tối đa một interface"
       ],
       explain: "Theo Chương 5 (LO3 & LO4), khi thực thi interface, lớp cụ thể phải cài đặt các phương thức của interface với phạm vi `public` và không cần dùng từ khóa `override`."
     });
@@ -2058,146 +2068,146 @@
 
   // 140 câu Dễ chọn lọc không trùng lặp từ kho lý thuyết trước đó
   var THEORY_EASY_140 = [
-    [2, 0, 2, "Constructor The(int m, string ten) có bao nhiêu tham số?", "Có một tham số", "Không có tham số", "Có hai tham số", "Có ba tham số", 2],
-    [2, 0, 3, "Tên constructor của một lớp C# tuân theo quy tắc nào?", "Có tên do người viết chọn", "Có dấu ~ trước tên lớp", "Trùng tên biến nhận đối tượng", "Trùng tên lớp", 3],
-    [2, 0, 6, "Cặp dấu nào dùng trong cú pháp truy cập theo chỉ mục?", "[]", "{}", ";", "()", 0],
-    [2, 0, 13, "Từ khóa nào đứng ở vị trí kiểu trả về của phương thức không trả giá trị?", "new", "public", "void", "class", 2],
-    [2, 0, 15, "Constructor The(int m) có bao nhiêu tham số?", "Có hai tham số", "Có một tham số", "Có ba tham số", "Không có tham số", 1],
-    [2, 0, 16, "Nếu thực hiện riêng hai lần new Mau(), có bao nhiêu thể hiện Mau mới được tạo?", "Ba thể hiện", "Một thể hiện", "Hai thể hiện", "Không tạo thể hiện", 2],
-    [2, 0, 17, "Đâu là lời gọi Ghi trên m với đối số 5?", "m.Doc(5)", "m.Ghi(5)", "m.Doc()", "m.Ghi()", 1],
-    [2, 0, 19, "Nếu thực hiện một lần new Mau(), có bao nhiêu thể hiện Mau mới được tạo?", "Một thể hiện", "Không tạo thể hiện", "Ba thể hiện", "Hai thể hiện", 0],
-    [2, 0, 21, "Constructor The(int m, string ten, bool bat) có bao nhiêu tham số?", "Không có tham số", "Có một tham số", "Có hai tham số", "Có ba tham số", 3],
-    [2, 0, 22, "Từ khóa nào có thể đặt đầu khai báo để mở quyền truy cập thành viên?", "void", "public", "class", "new", 1],
-    [2, 0, 30, "Đâu là lời gọi Doc trên m với đối số 5?", "m.Ghi()", "m.Doc(5)", "m.Doc()", "m.Ghi(5)", 1],
-    [2, 0, 33, "Khai báo riêng Mau a; tạo bao nhiêu thể hiện Mau?", "Hai thể hiện", "Không tạo thể hiện", "Ba thể hiện", "Một thể hiện", 1],
-    [2, 0, 34, "Đâu là lời gọi Ghi trên m với danh sách đối số rỗng?", "m.Ghi()", "m.Ghi(5)", "m.Doc(5)", "m.Doc()", 0],
-    [2, 0, 35, "Đâu là lời gọi Doc trên m với danh sách đối số rỗng?", "m.Doc(5)", "m.Ghi(5)", "m.Doc()", "m.Ghi()", 2],
-    [2, 0, 38, "Constructor The() có bao nhiêu tham số?", "Có một tham số", "Có hai tham số", "Không có tham số", "Có ba tham số", 2],
-    [2, 0, 39, "Từ khóa nào đứng trước tên lớp trong biểu thức tạo thể hiện?", "public", "new", "class", "void", 1],
-    [2, 0, 41, "Nếu thực hiện riêng ba lần new Mau(), có bao nhiêu thể hiện Mau mới được tạo?", "Hai thể hiện", "Ba thể hiện", "Một thể hiện", "Không tạo thể hiện", 1],
-    [2, 0, 43, "Cú pháp tên finalizer của lớp C# có đặc điểm gì?", "Trùng tên lớp", "Có dấu ~ trước tên lớp", "Có tên do người viết chọn", "Trùng tên biến nhận đối tượng", 1],
-    [2, 0, 44, "Một người hiểu nhầm rằng khai báo Hop h = new Hop() đòi hỏi constructor tên h. Họ đang nhầm tên constructor với gì?", "Trùng tên biến nhận đối tượng", "Có tên do người viết chọn", "Trùng tên lớp", "Có dấu ~ trước tên lớp", 0],
-    [2, 0, 46, "Cặp dấu nào bao quanh thân lớp?", ";", "[]", "()", "{}", 3],
-    [2, 0, 49, "Tên của một phương thức thường như KiemTra được xác định thế nào?", "Trùng tên lớp", "Trùng tên biến nhận đối tượng", "Có dấu ~ trước tên lớp", "Có tên do người viết chọn", 3],
-    [2, 0, 50, "Dấu nào kết thúc một khai báo trường đơn giản như int dem?", ";", "{}", "[]", "()", 0],
-    [2, 0, 51, "Cặp dấu nào bao quanh danh sách tham số của phương thức?", "{}", "[]", "()", ";", 2],
-    [2, 0, 56, "Từ khóa nào đứng trước tên lớp trong khai báo lớp thường?", "class", "void", "new", "public", 0],
-    [3, 0, 65, "Theo quy ước tên trong bài giảng, tên nào thích hợp để truy vấn trạng thái bool đang mở?", "SetMuc(int muc)", "Dong()", "GetMuc()", "IsMo()", 3],
-    [3, 0, 67, "Chỉ thị nào xét assembly mà không xét quan hệ dẫn xuất?", "private", "internal", "protected internal", "protected", 1],
-    [3, 0, 68, "Phần khai báo nào phù hợp cho chỉ mục nhận một khóa chuỗi?", "Doc(int i)", "this[int i]", "this[string key]", "this[int i, int j]", 2],
-    [3, 0, 70, "Trong thân CapNhat(int muc), muc là tên của thành phần nào?", "Tên kiểu", "Tên biến thể hiện", "Tên tham số", "Tên trường hỗ trợ", 2],
-    [3, 0, 72, "Nếu Tong là trường public static của BoDem, cú pháp đọc phù hợp là gì?", "BoDem.DocTong()", "BoDem.Tong", "b.Muc", "b.Tang()", 1],
-    [3, 0, 73, "Nếu DocTong là phương thức public static của BoDem, gọi nó bằng cú pháp nào?", "BoDem.DocTong()", "BoDem.Tong", "b.Tang()", "b.Muc", 0],
-    [3, 0, 74, "Phần khai báo nào phù hợp cho chỉ mục nhận hai số nguyên?", "this[int i]", "this[string key]", "Doc(int i)", "this[int i, int j]", 3],
-    [3, 0, 78, "Trong BoDem.DocTong(), BoDem đứng trước dấu chấm với tư cách gì?", "Tên trường hỗ trợ", "Tên tham số", "Tên kiểu", "Tên biến thể hiện", 2],
-    [3, 0, 80, "Cú pháp nào khai báo một lớp trừu tượng?", "interface", "abstract class", "static class", "class", 1],
-    [3, 0, 81, "Một setter gán _muc = value thực hiện chức năng gì?", "Truy vấn", "Lưu trữ dữ liệu", "Kiểm tra dữ liệu", "Cập nhật", 3],
-    [3, 0, 84, "Trong accessor set, value biểu thị gì?", "Giá trị đang gán qua set", "Tham số x", "Một chỉ số int", "Trường x của đối tượng", 0],
-    [3, 0, 86, "Từ khóa namespace tổ chức tên kiểu theo đơn vị nào?", "Lớp", "Thể hiện", "Namespace", "Assembly", 2],
-    [3, 0, 90, "Với ref int và một đối số hợp lệ, quyền của phương thức đối với biến của người gọi là gì?", "Cho phép đọc và ghi biến của người gọi", "Tham chiếu đối tượng hiện tại", "Sao chép giá trị", "Bắt buộc gán tham số đầu ra", 0],
-    [3, 0, 91, "Trong void CapNhat(int x), nếu tên trùng với trường, x viết riêng trong thân chỉ đến gì?", "Trường x của đối tượng", "Một chỉ số int", "Tham số x", "Giá trị đang gán qua set", 2],
-    [3, 0, 92, "Trong phương thức có tham số muc trùng tên trường, dòng nào lưu đối số vào trường?", "return this.muc", "muc = muc", "this.muc = 0", "this.muc = muc", 3],
-    [3, 0, 93, "Điều kiện tối thiểu đối với danh sách tham số chỉ mục là gì?", "Có ít nhất một tham số", "Có thể chỉ có get", "Dùng cú pháp [] khi gọi", "Có thể nạp chồng", 0],
-    [3, 0, 95, "Chỉ thị nào dùng quyền kế thừa mà tự nó không cấp quyền cho lớp ngoài hệ phân cấp trong cùng assembly?", "internal", "protected internal", "protected", "private", 2],
-    [3, 0, 96, "Theo quy ước tên trong bài giảng, tên nào thích hợp để cập nhật mức bằng tham số int?", "GetMuc()", "SetMuc(int muc)", "Dong()", "IsMo()", 1],
-    [3, 0, 97, "Nhận định nào mô tả khả năng tạo chỉ mục chỉ đọc?", "Dùng cú pháp [] khi gọi", "Có thể chỉ có get", "Có thể nạp chồng", "Có ít nhất một tham số", 1],
-    [3, 0, 99, "Trong cùng phương thức, dòng nào chỉ tự gán tham số cho chính nó?", "return this.muc", "muc = muc", "this.muc = 0", "this.muc = muc", 1],
-    [3, 0, 100, "Nếu Muc là property thể hiện của BoDem, đọc nó trên b bằng cú pháp nào?", "b.Muc", "BoDem.DocTong()", "b.Tang()", "BoDem.Tong", 0],
-    [3, 0, 102, "Từ khóa nào mở khai báo một kiểu hợp đồng giao diện?", "abstract class", "static class", "class", "interface", 3],
-    [3, 0, 104, "Phạm vi chứa trực tiếp khai báo trường private trong ví dụ một kiểu đơn giản là gì?", "Namespace", "Lớp", "Assembly", "Thể hiện", 1],
-    [3, 0, 106, "Khi một lớp có chỉ mục int và chỉ mục string, nó sử dụng khả năng nào?", "Dùng cú pháp [] khi gọi", "Có thể nạp chồng", "Có thể chỉ có get", "Có ít nhất một tham số", 1],
-    [3, 0, 108, "Dòng nào gán hằng số vào trường thể hiện muc?", "this.muc = muc", "return this.muc", "muc = muc", "this.muc = 0", 3],
-    [3, 0, 109, "Property public có get và set đều public cho phép thao tác nào từ bên ngoài?", "Đọc và ghi từ bên ngoài", "Đọc từ bên ngoài", "Gọi như một phương thức", "Ghi từ bên ngoài", 0],
-    [3, 0, 110, "Cú pháp nào khai báo một lớp tĩnh?", "interface", "class", "static class", "abstract class", 2],
-    [3, 0, 113, "Trong property Muc dùng get { return _muc; }, _muc thường là tên của thành phần nào?", "Tên biến thể hiện", "Tên tham số", "Tên kiểu", "Tên trường hỗ trợ", 3],
-    [3, 0, 114, "Theo quy ước tên trong bài giảng, tên nào thích hợp để đọc mức hiện tại?", "GetMuc()", "SetMuc(int muc)", "Dong()", "IsMo()", 0],
-    [3, 0, 118, "Trường private _muc giữ mức hiện tại thực hiện chức năng gì?", "Truy vấn", "Lưu trữ dữ liệu", "Kiểm tra dữ liệu", "Cập nhật", 1],
-    [3, 0, 120, "Trong bốn lựa chọn, phần đầu khai báo nào dùng cho lớp thường?", "class", "abstract class", "interface", "static class", 0],
-    [3, 0, 123, "Một getter chỉ trả về _muc thực hiện chức năng gì?", "Kiểm tra dữ liệu", "Cập nhật", "Lưu trữ dữ liệu", "Truy vấn", 3],
-    [3, 0, 124, "Chỉ thị nào cho phép truy cập theo điều kiện protected hoặc internal?", "protected", "private", "internal", "protected internal", 3],
-    [3, 0, 127, "Trong void CapNhat(int x), this.x dùng để chỉ gì?", "Giá trị đang gán qua set", "Một chỉ số int", "Trường x của đối tượng", "Tham số x", 2],
-    [3, 0, 129, "Trong chỉ mục this[int i], i biểu thị gì?", "Một chỉ số int", "Giá trị đang gán qua set", "Tham số x", "Trường x của đối tượng", 0],
-    [3, 0, 131, "Phần khai báo nào là đầu của một phương thức có tên riêng và nhận một số nguyên?", "this[string key]", "this[int i]", "Doc(int i)", "this[int i, int j]", 2],
-    [3, 0, 132, "Trong b.DocMuc(), nếu b đã giữ một đối tượng BoDem thì b đứng trước dấu chấm với tư cách gì?", "Tên kiểu", "Tên biến thể hiện", "Tên tham số", "Tên trường hỗ trợ", 1],
-    [3, 0, 133, "Property public chỉ có get cho phép thao tác nào từ bên ngoài?", "Gọi như một phương thức", "Đọc từ bên ngoài", "Đọc và ghi từ bên ngoài", "Ghi từ bên ngoài", 1],
-    [3, 0, 135, "Dấu hiệu cú pháp nào xuất hiện khi bên gọi truy cập chỉ mục?", "Có thể nạp chồng", "Có ít nhất một tham số", "Dùng cú pháp [] khi gọi", "Có thể chỉ có get", 2],
-    [3, 0, 136, "Khi truyền int theo tham trị, giá trị được chuyển vào tham số thế nào?", "Bắt buộc gán tham số đầu ra", "Cho phép đọc và ghi biến của người gọi", "Tham chiếu đối tượng hiện tại", "Sao chép giá trị", 3],
-    [3, 0, 139, "Property public chỉ có set cho phép thao tác nào từ bên ngoài?", "Đọc từ bên ngoài", "Đọc và ghi từ bên ngoài", "Gọi như một phương thức", "Ghi từ bên ngoài", 3],
-    [3, 0, 141, "Tên nào thể hiện hành động đóng trực tiếp theo tên gọi, không theo mẫu truy vấn hoặc cập nhật trong ba lựa chọn còn lại?", "Dong()", "SetMuc(int muc)", "IsMo()", "GetMuc()", 0],
-    [3, 0, 142, "Trong biểu thức this.X, this đại diện cho gì?", "Lớp", "Assembly", "Thể hiện", "Namespace", 2],
-    [3, 0, 143, "Phương thức khai báo out int có nghĩa vụ gì khi trả về bình thường?", "Cho phép đọc và ghi biến của người gọi", "Tham chiếu đối tượng hiện tại", "Bắt buộc gán tham số đầu ra", "Sao chép giá trị", 2],
-    [3, 0, 144, "Trong hàm trả về int, dòng nào trả về trường thể hiện muc?", "muc = muc", "this.muc = muc", "return this.muc", "this.muc = 0", 2],
-    [3, 0, 145, "Điều kiện if (value >= 0) trong setter thực hiện chức năng gì?", "Truy vấn", "Lưu trữ dữ liệu", "Kiểm tra dữ liệu", "Cập nhật", 2],
-    [3, 0, 148, "Trong phương thức thể hiện, this biểu thị điều gì?", "Cho phép đọc và ghi biến của người gọi", "Sao chép giá trị", "Bắt buộc gán tham số đầu ra", "Tham chiếu đối tượng hiện tại", 3],
-    [3, 0, 149, "Ranh giới mà internal sử dụng gọi là gì?", "Thể hiện", "Lớp", "Namespace", "Assembly", 3],
-    [3, 0, 150, "Nếu Tang là phương thức thể hiện của BoDem, gọi nó trên b bằng cú pháp nào?", "BoDem.DocTong()", "b.Tang()", "BoDem.Tong", "b.Muc", 1],
-    [3, 0, 151, "Với phương thức truy vấn GetM() thay cho property, bên gọi dùng cách nào?", "Đọc và ghi từ bên ngoài", "Đọc từ bên ngoài", "Ghi từ bên ngoài", "Gọi như một phương thức", 3],
-    [3, 0, 153, "Trong bốn lựa chọn, chỉ thị nào phù hợp nhất để giấu trường khỏi cả lớp dẫn xuất?", "protected", "internal", "protected internal", "private", 3],
-    [3, 0, 156, "Phần khai báo nào phù hợp cho chỉ mục nhận một số nguyên?", "this[string key]", "this[int i]", "this[int i, int j]", "Doc(int i)", 1],
-    [4, 0, 159, "Một lớp C# được khai báo tối đa bao nhiêu lớp cơ sở trực tiếp?", "Không có giới hạn cố định ở mức bài giảng", "Hai", "Không có", "Một", 3],
-    [4, 0, 161, "Khai báo nào tạo lớp A kế thừa B?", "class A : B", "class B : A", "class B", "interface B : A", 0],
-    [4, 0, 162, "Nếu chỉ viết class X : A và A không thực thi giao diện nào, X thực thi trực tiếp bao nhiêu giao diện?", "Không có giới hạn cố định ở mức bài giảng", "Không có", "Một", "Hai", 1],
-    [4, 0, 163, "Nếu B dùng new M() che M() của A và biến b có kiểu B, b.M() chọn phiên bản nào?", "Chọn phiên bản cơ sở", "Cảnh báo che khuất", "Lỗi không truy cập được", "Chọn phiên bản dẫn xuất", 3],
-    [4, 0, 168, "Nếu B khai báo M cùng chữ ký M không ảo của A mà bỏ new, trình biên dịch thường đưa ra điều gì?", "Cảnh báo che khuất", "Chọn phiên bản dẫn xuất", "Chọn phiên bản cơ sở", "Lỗi không truy cập được", 0],
-    [4, 0, 170, "Khai báo class X : A, I, J với A là lớp và I, J là giao diện thực thi bao nhiêu giao diện trực tiếp?", "Không có", "Hai", "Không có giới hạn cố định ở mức bài giảng", "Một", 1],
-    [4, 0, 171, "Trong public int Id;, Id thuộc loại thành viên nào mà B có thể truy cập?", "Constructor thể hiện", "Trường public", "Phương thức public", "Finalizer", 1],
-    [4, 0, 173, "Trong B, base.M() gọi phiên bản nào nếu A khai báo M và là lớp cơ sở trực tiếp?", "Chọn phiên bản dẫn xuất", "Lỗi không truy cập được", "Cảnh báo che khuất", "Chọn phiên bản cơ sở", 3],
-    [4, 0, 176, "Nhận định nào đúng về số giao diện khác nhau mà một lớp có thể liệt kê theo quy tắc kế thừa của bài giảng?", "Không có", "Không có giới hạn cố định ở mức bài giảng", "Hai", "Một", 1],
-    [4, 0, 177, "Giả sử A là giao diện, khai báo nào tạo giao diện B kế thừa A?", "class A : B", "class B", "class B : A", "interface B : A", 3],
-    [4, 0, 179, "Thành viên nào có dạng ~A() và không thể gọi trực tiếp từ B?", "Trường public", "Constructor thể hiện", "Finalizer", "Phương thức public", 2],
-    [4, 0, 182, "Với B b đã giữ đối tượng, khi chạy A a = b; điều gì xảy ra với đối tượng ban đầu?", "Thay đổi kiểu thực", "Tạo bản sao", "Giữ nguyên đối tượng", "Tạo đối tượng lớp cơ sở mới", 2],
-    [4, 0, 191, "Thành viên nào có thể được B gọi qua : base(...) nhưng phải được khai báo như một constructor riêng nếu B cần cùng chữ ký?", "Constructor thể hiện", "Finalizer", "Phương thức public", "Trường public", 0],
-    [4, 0, 193, "Trong public void HienThi() { }, HienThi thuộc loại thành viên nào mà B có thể gọi?", "Phương thức public", "Trường public", "Constructor thể hiện", "Finalizer", 0],
-    [4, 0, 198, "Khai báo nào tạo lớp B mà không nêu lớp cơ sở tường minh?", "class A : B", "class B", "interface B : A", "class B : A", 1],
-    [4, 0, 201, "Trong lớp dẫn xuất bình thường, cố đọc trực tiếp trường private của lớp cơ sở dẫn đến điều gì?", "Chọn phiên bản cơ sở", "Chọn phiên bản dẫn xuất", "Cảnh báo che khuất", "Lỗi không truy cập được", 3],
-    [4, 0, 203, "Cụm từ nào mô tả một hiểu nhầm về tác dụng của phép gán tham chiếu sang biến lớp cơ sở?", "Tạo đối tượng lớp cơ sở mới", "Giữ nguyên đối tượng", "Thay đổi kiểu thực", "Tạo bản sao", 2],
-    [4, 0, 204, "Trong A a = new A();, biểu thức bên phải thực hiện gì?", "Tạo đối tượng lớp cơ sở mới", "Tạo bản sao", "Thay đổi kiểu thực", "Giữ nguyên đối tượng", 0],
-    [4, 0, 214, "Thao tác nào được mô tả bởi cụm từ sao chép đối tượng sang một thể hiện khác?", "Giữ nguyên đối tượng", "Tạo đối tượng lớp cơ sở mới", "Tạo bản sao", "Thay đổi kiểu thực", 2],
-    [4, 0, 215, "Khai báo nào tạo lớp B kế thừa A?", "class B", "interface B : A", "class A : B", "class B : A", 3],
-    [5, 0, 217, "Giả sử C thực thi I.M. Sau I a = new C();, a.M() thuộc trường hợp nào?", "Lỗi tạo thể hiện", "Khai báo hợp đồng", "Khai báo biến hợp lệ", "Lời gọi hợp lệ và có cài đặt", 3],
-    [5, 0, 218, "Trong A a = new B(); với B : A, A giữ vai trò nào trong quan hệ kế thừa?", "Biến tham chiếu", "Lớp cơ sở", "Phiên bản ghi đè", "Lớp dẫn xuất", 1],
-    [5, 0, 222, "Tên nào theo quy ước đặt tên giao diện trong bài giảng?", "static class TruyenTin", "ITruyenTin", "abstract class TruyenTin", "TruyenTin", 1],
-    [5, 0, 226, "Nếu B có override M(), thân B.M() đóng vai trò gì?", "Lớp dẫn xuất", "Phiên bản ghi đè", "Biến tham chiếu", "Lớp cơ sở", 1],
-    [5, 0, 228, "Lớp tiện ích chuẩn nào chứa các hàm như Sqrt và Pow?", "System.Type", "System.Math", "System.String", "System.Object", 1],
-    [5, 0, 229, "Thành viên nào cung cấp thông tin kiểu của thể hiện hiện tại?", "Finalize()", "ToString()", "MemberwiseClone()", "GetType()", 3],
-    [5, 0, 230, "Lớp thường đã cung cấp đủ bản cài đặt cần thiết để tạo đối tượng được gọi là gì?", "Phương thức ảo có thân", "Lớp triển khai cụ thể", "Hợp đồng giao diện", "Lớp trừu tượng trung gian", 1],
-    [5, 0, 232, "Câu lệnh new I() khi I là interface thuộc trường hợp nào?", "Lỗi tạo thể hiện", "Khai báo hợp đồng", "Lời gọi hợp lệ và có cài đặt", "Khai báo biến hợp lệ", 0],
-    [5, 0, 234, "Trong thân phương thức, dòng I a; khi I là interface thuộc trường hợp nào?", "Lời gọi hợp lệ và có cài đặt", "Khai báo hợp đồng", "Lỗi tạo thể hiện", "Khai báo biến hợp lệ", 3],
-    [5, 0, 236, "Kiểu nào là kiểu trả về của GetType() trên một đối tượng?", "System.Math", "System.Type", "System.String", "System.Object", 1],
-    [5, 0, 238, "Mức truy cập nào dùng để cho phép lớp con gọi một phương thức của lớp trừu tượng theo quan hệ dẫn xuất?", "protected", "private", "internal", "public", 0],
-    [5, 0, 239, "Khai báo nào tạo lớp thường A?", "interface A", "abstract class A", "class A", "static class A", 2],
-    [5, 0, 244, "Dòng void M(); trong thân interface cổ điển thuộc trường hợp nào?", "Khai báo hợp đồng", "Khai báo biến hợp lệ", "Lời gọi hợp lệ và có cài đặt", "Lỗi tạo thể hiện", 0],
-    [5, 0, 245, "Trong mô hình bài giảng, giao diện dùng chủ yếu để mô tả điều gì?", "Hợp đồng hành vi", "Trạng thái dùng chung của lớp cơ sở", "Phiên bản mặc định", "Thể hiện cụ thể", 0],
-    [5, 0, 247, "Khai báo nào tạo lớp trừu tượng A?", "interface A", "class A", "static class A", "abstract class A", 3],
-    [5, 0, 249, "Trong mô hình giao diện cổ điển, thành viên hợp đồng void M(); mặc định có mức truy cập nào?", "public", "private", "internal", "protected", 0],
-    [5, 0, 250, "Khai báo nào tạo giao diện A?", "abstract class A", "interface A", "static class A", "class A", 1],
-    [5, 0, 251, "Trong public void Gui() { }, public mô tả yếu tố nào?", "Quyền truy cập", "Chữ ký phương thức", "Thân phương thức", "Tên giao diện", 0],
-    [5, 0, 252, "Mức truy cập nào phù hợp nhất cho phương thức trợ giúp chỉ dùng trong lớp khai báo?", "internal", "private", "protected", "public", 1],
-    [5, 0, 253, "Trong interface IThongBao { }, IThongBao giữ vai trò gì?", "Thân phương thức", "Tên giao diện", "Quyền truy cập", "Chữ ký phương thức", 1],
-    [5, 0, 254, "Khai báo nào cho phép lớp TruyenTin định nghĩa một khung chung mà không tạo trực tiếp đối tượng?", "ITruyenTin", "TruyenTin", "abstract class TruyenTin", "static class TruyenTin", 2],
-    [5, 0, 255, "Một giao diện có thể liệt kê những kiểu nào ở danh sách kế thừa?", "Nhiều giao diện", "Chỉ một lớp", "Một lớp và nhiều giao diện", "Không thể dùng tên lớp ở vế new", 0],
-    [5, 0, 256, "Tên nào phù hợp cho một lớp thường triển khai việc truyền tin?", "abstract class TruyenTin", "TruyenTin", "static class TruyenTin", "ITruyenTin", 1],
-    [5, 0, 257, "Với lớp A trừu tượng, phát biểu nào đúng về new A()?", "Chỉ một lớp", "Không thể dùng tên lớp ở vế new", "Một lớp và nhiều giao diện", "Nhiều giao diện", 1],
-    [5, 0, 259, "Kiểu nào nằm ở gốc phân cấp các lớp C#?", "System.Type", "System.Object", "System.String", "System.Math", 1],
-    [5, 0, 264, "Trường thể hiện khai báo trong lớp trừu tượng có thể biểu diễn phần gì cho các lớp dẫn xuất?", "Trạng thái dùng chung của lớp cơ sở", "Phiên bản mặc định", "Hợp đồng hành vi", "Thể hiện cụ thể", 0],
-    [5, 0, 267, "Một lớp trừu tượng có thể nêu tối đa những loại kiểu cơ sở nào?", "Không thể dùng tên lớp ở vế new", "Nhiều giao diện", "Một lớp và nhiều giao diện", "Chỉ một lớp", 2],
-    [5, 0, 269, "Trong lớp cơ sở, public virtual void M() { } là dạng thành viên nào?", "Lớp triển khai cụ thể", "Lớp trừu tượng trung gian", "Hợp đồng giao diện", "Phương thức ảo có thân", 3],
-    [5, 0, 272, "Trong cùng khai báo, B giữ vai trò nào trong quan hệ kế thừa?", "Phiên bản ghi đè", "Biến tham chiếu", "Lớp cơ sở", "Lớp dẫn xuất", 3],
-    [5, 0, 273, "Đối tượng tạo bằng new trên một lớp thực thi giao diện là gì?", "Hợp đồng hành vi", "Phiên bản mặc định", "Thể hiện cụ thể", "Trạng thái dùng chung của lớp cơ sở", 2],
-    [5, 0, 275, "Thành viên nào gắn với cơ chế finalization?", "ToString()", "GetType()", "Finalize()", "MemberwiseClone()", 2],
-    [5, 0, 280, "C# cho phép một lớp kế thừa trực tiếp bao nhiêu kiểu thuộc loại lớp?", "Một lớp và nhiều giao diện", "Không thể dùng tên lớp ở vế new", "Chỉ một lớp", "Nhiều giao diện", 2],
-    [5, 0, 282, "Trong lớp thực thi, khối { } của Gui dùng để chứa gì?", "Chữ ký phương thức", "Tên giao diện", "Thân phương thức", "Quyền truy cập", 2],
-    [5, 0, 283, "Trong interface I { void Gui(); }, void Gui(); cung cấp phần nào của hợp đồng?", "Quyền truy cập", "Tên giao diện", "Chữ ký phương thức", "Thân phương thức", 2],
-    [5, 0, 284, "Mức truy cập nào dành cho mã cùng assembly kể cả khi không kế thừa?", "internal", "private", "public", "protected", 0],
-    [5, 0, 285, "Trong cùng khai báo, a đóng vai trò gì?", "Lớp dẫn xuất", "Phiên bản ghi đè", "Biến tham chiếu", "Lớp cơ sở", 2],
-    [5, 0, 291, "Tên đầy đủ của kiểu string là gì?", "System.Object", "System.Math", "System.String", "System.Type", 2],
-    [5, 0, 292, "Khai báo nào tạo lớp tiện ích tĩnh A?", "interface A", "abstract class A", "class A", "static class A", 3],
-    [5, 0, 293, "Khai báo nào phù hợp cho một lớp TruyenTin chỉ chứa các hàm tiện ích tĩnh?", "TruyenTin", "abstract class TruyenTin", "ITruyenTin", "static class TruyenTin", 3],
-    [5, 0, 295, "Thân phương thức virtual ở lớp cơ sở cung cấp điều gì trước khi có override?", "Hợp đồng hành vi", "Trạng thái dùng chung của lớp cơ sở", "Thể hiện cụ thể", "Phiên bản mặc định", 3],
-    [5, 0, 297, "Thành viên nào thường được ghi đè để trình bày nội dung đối tượng dưới dạng văn bản?", "Finalize()", "MemberwiseClone()", "ToString()", "GetType()", 2],
-    [5, 0, 298, "Một lớp nằm giữa lớp cơ sở và lớp cụ thể, vẫn được đánh dấu abstract, thuộc vai trò nào?", "Hợp đồng giao diện", "Phương thức ảo có thân", "Lớp trừu tượng trung gian", "Lớp triển khai cụ thể", 2],
-    [5, 0, 299, "Trong interface I { void M(); }, lời khai báo M() đại diện cho điều gì?", "Hợp đồng giao diện", "Lớp trừu tượng trung gian", "Phương thức ảo có thân", "Lớp triển khai cụ thể", 0],
-    [5, 0, 300, "Thành viên nào của object tạo bản sao nông?", "Finalize()", "ToString()", "GetType()", "MemberwiseClone()", 3]
+    [2, 0, 2, "Constructor The(int m, string ten) có bao nhiêu tham số?", "Có một tham số", "Không có tham số", "Có hai tham số", "Có ba tham số", "Có bốn tham số", 2],
+    [2, 0, 3, "Tên constructor của một lớp C# tuân theo quy tắc nào?", "Có tên do người viết chọn", "Có dấu ~ trước tên lớp", "Trùng tên biến nhận đối tượng", "Trùng tên lớp", "Bắt đầu bằng từ khóa constructor", 3],
+    [2, 0, 6, "Cặp dấu nào dùng trong cú pháp truy cập theo chỉ mục?", "[]", "{}", ";", "()", "<>", 0],
+    [2, 0, 13, "Từ khóa nào đứng ở vị trí kiểu trả về của phương thức không trả giá trị?", "new", "public", "void", "class", "static", 2],
+    [2, 0, 15, "Constructor The(int m) có bao nhiêu tham số?", "Có hai tham số", "Có một tham số", "Có ba tham số", "Không có tham số", "Có bốn tham số", 1],
+    [2, 0, 16, "Nếu thực hiện riêng hai lần new Mau(), có bao nhiêu thể hiện Mau mới được tạo?", "Ba thể hiện", "Một thể hiện", "Hai thể hiện", "Không tạo thể hiện", "Bốn thể hiện", 2],
+    [2, 0, 17, "Đâu là lời gọi Ghi trên m với đối số 5?", "m.Doc(5)", "m.Ghi(5)", "m.Doc()", "m.Ghi()", "m.Xuat()", 1],
+    [2, 0, 19, "Nếu thực hiện một lần new Mau(), có bao nhiêu thể hiện Mau mới được tạo?", "Một thể hiện", "Không tạo thể hiện", "Ba thể hiện", "Hai thể hiện", "Bốn thể hiện", 0],
+    [2, 0, 21, "Constructor The(int m, string ten, bool bat) có bao nhiêu tham số?", "Không có tham số", "Có một tham số", "Có hai tham số", "Có ba tham số", "Có bốn tham số", 3],
+    [2, 0, 22, "Từ khóa nào có thể đặt đầu khai báo để mở quyền truy cập thành viên?", "void", "public", "class", "new", "static", 1],
+    [2, 0, 30, "Đâu là lời gọi Doc trên m với đối số 5?", "m.Ghi()", "m.Doc(5)", "m.Doc()", "m.Ghi(5)", "m.Xuat()", 1],
+    [2, 0, 33, "Khai báo riêng Mau a; tạo bao nhiêu thể hiện Mau?", "Hai thể hiện", "Không tạo thể hiện", "Ba thể hiện", "Một thể hiện", "Bốn thể hiện", 1],
+    [2, 0, 34, "Đâu là lời gọi Ghi trên m với danh sách đối số rỗng?", "m.Ghi()", "m.Ghi(5)", "m.Doc(5)", "m.Doc()", "m.Xuat()", 0],
+    [2, 0, 35, "Đâu là lời gọi Doc trên m với danh sách đối số rỗng?", "m.Doc(5)", "m.Ghi(5)", "m.Doc()", "m.Ghi()", "m.Xuat()", 2],
+    [2, 0, 38, "Constructor The() có bao nhiêu tham số?", "Có một tham số", "Có hai tham số", "Không có tham số", "Có ba tham số", "Có bốn tham số", 2],
+    [2, 0, 39, "Từ khóa nào đứng trước tên lớp trong biểu thức tạo thể hiện?", "public", "new", "class", "void", "static", 1],
+    [2, 0, 41, "Nếu thực hiện riêng ba lần new Mau(), có bao nhiêu thể hiện Mau mới được tạo?", "Hai thể hiện", "Ba thể hiện", "Một thể hiện", "Không tạo thể hiện", "Bốn thể hiện", 1],
+    [2, 0, 43, "Cú pháp tên finalizer của lớp C# có đặc điểm gì?", "Trùng tên lớp", "Có dấu ~ trước tên lớp", "Có tên do người viết chọn", "Trùng tên biến nhận đối tượng", "Bắt đầu bằng từ khóa constructor", 1],
+    [2, 0, 44, "Một người hiểu nhầm rằng khai báo Hop h = new Hop() đòi hỏi constructor tên h. Họ đang nhầm tên constructor với gì?", "Trùng tên biến nhận đối tượng", "Có tên do người viết chọn", "Trùng tên lớp", "Có dấu ~ trước tên lớp", "Bắt đầu bằng từ khóa constructor", 0],
+    [2, 0, 46, "Cặp dấu nào bao quanh thân lớp?", ";", "[]", "()", "{}", "<>", 3],
+    [2, 0, 49, "Tên của một phương thức thường như KiemTra được xác định thế nào?", "Trùng tên lớp", "Trùng tên biến nhận đối tượng", "Có dấu ~ trước tên lớp", "Có tên do người viết chọn", "Bắt đầu bằng từ khóa constructor", 3],
+    [2, 0, 50, "Dấu nào kết thúc một khai báo trường đơn giản như int dem?", ";", "{}", "[]", "()", "<>", 0],
+    [2, 0, 51, "Cặp dấu nào bao quanh danh sách tham số của phương thức?", "{}", "[]", "()", ";", "<>", 2],
+    [2, 0, 56, "Từ khóa nào đứng trước tên lớp trong khai báo lớp thường?", "class", "void", "new", "public", "static", 0],
+    [3, 0, 65, "Theo quy ước tên trong bài giảng, tên nào thích hợp để truy vấn trạng thái bool đang mở?", "SetMuc(int muc)", "Dong()", "GetMuc()", "IsMo()", "KiemTra()", 3],
+    [3, 0, 67, "Chỉ thị nào xét assembly mà không xét quan hệ dẫn xuất?", "private", "internal", "protected internal", "protected", "public", 1],
+    [3, 0, 68, "Phần khai báo nào phù hợp cho chỉ mục nhận một khóa chuỗi?", "Doc(int i)", "this[int i]", "this[string key]", "this[int i, int j]", "this[double x]", 2],
+    [3, 0, 70, "Trong thân CapNhat(int muc), muc là tên của thành phần nào?", "Tên kiểu", "Tên biến thể hiện", "Tên tham số", "Tên trường hỗ trợ", "Tên hằng số toàn cục", 2],
+    [3, 0, 72, "Nếu Tong là trường public static của BoDem, cú pháp đọc phù hợp là gì?", "BoDem.DocTong()", "BoDem.Tong", "b.Muc", "b.Tang()", "BoDem.Muc", 1],
+    [3, 0, 73, "Nếu DocTong là phương thức public static của BoDem, gọi nó bằng cú pháp nào?", "BoDem.DocTong()", "BoDem.Tong", "b.Tang()", "b.Muc", "BoDem.Muc", 0],
+    [3, 0, 74, "Phần khai báo nào phù hợp cho chỉ mục nhận hai số nguyên?", "this[int i]", "this[string key]", "Doc(int i)", "this[int i, int j]", "this[double x]", 3],
+    [3, 0, 78, "Trong BoDem.DocTong(), BoDem đứng trước dấu chấm với tư cách gì?", "Tên trường hỗ trợ", "Tên tham số", "Tên kiểu", "Tên biến thể hiện", "Tên hằng số toàn cục", 2],
+    [3, 0, 80, "Cú pháp nào khai báo một lớp trừu tượng?", "interface", "abstract class", "static class", "class", "record struct", 1],
+    [3, 0, 81, "Một setter gán _muc = value thực hiện chức năng gì?", "Truy vấn", "Lưu trữ dữ liệu", "Kiểm tra dữ liệu", "Cập nhật", "Định dạng hiển thị", 3],
+    [3, 0, 84, "Trong accessor set, value biểu thị gì?", "Giá trị đang gán qua set", "Tham số x", "Một chỉ số int", "Trường x của đối tượng", "Tên thuộc tính", 0],
+    [3, 0, 86, "Từ khóa namespace tổ chức tên kiểu theo đơn vị nào?", "Lớp", "Thể hiện", "Namespace", "Assembly", "Module", 2],
+    [3, 0, 90, "Với ref int và một đối số hợp lệ, quyền của phương thức đối với biến của người gọi là gì?", "Cho phép đọc và ghi biến của người gọi", "Tham chiếu đối tượng hiện tại", "Sao chép giá trị", "Bắt buộc gán tham số đầu ra", "Bỏ qua hoàn toàn đối số truyền vào", 0],
+    [3, 0, 91, "Trong void CapNhat(int x), nếu tên trùng với trường, x viết riêng trong thân chỉ đến gì?", "Trường x của đối tượng", "Một chỉ số int", "Tham số x", "Giá trị đang gán qua set", "Tên thuộc tính", 2],
+    [3, 0, 92, "Trong phương thức có tham số muc trùng tên trường, dòng nào lưu đối số vào trường?", "return this.muc", "muc = muc", "this.muc = 0", "this.muc = muc", "muc = this.muc", 3],
+    [3, 0, 93, "Điều kiện tối thiểu đối với danh sách tham số chỉ mục là gì?", "Có ít nhất một tham số", "Có thể chỉ có get", "Dùng cú pháp [] khi gọi", "Có thể nạp chồng", "Bắt buộc phải có cả get và set", 0],
+    [3, 0, 95, "Chỉ thị nào dùng quyền kế thừa mà tự nó không cấp quyền cho lớp ngoài hệ phân cấp trong cùng assembly?", "internal", "protected internal", "protected", "private", "public", 2],
+    [3, 0, 96, "Theo quy ước tên trong bài giảng, tên nào thích hợp để cập nhật mức bằng tham số int?", "GetMuc()", "SetMuc(int muc)", "Dong()", "IsMo()", "KiemTra()", 1],
+    [3, 0, 97, "Nhận định nào mô tả khả năng tạo chỉ mục chỉ đọc?", "Dùng cú pháp [] khi gọi", "Có thể chỉ có get", "Có thể nạp chồng", "Có ít nhất một tham số", "Bắt buộc phải có cả get và set", 1],
+    [3, 0, 99, "Trong cùng phương thức, dòng nào chỉ tự gán tham số cho chính nó?", "return this.muc", "muc = muc", "this.muc = 0", "this.muc = muc", "muc = this.muc", 1],
+    [3, 0, 100, "Nếu Muc là property thể hiện của BoDem, đọc nó trên b bằng cú pháp nào?", "b.Muc", "BoDem.DocTong()", "b.Tang()", "BoDem.Tong", "BoDem.Muc", 0],
+    [3, 0, 102, "Từ khóa nào mở khai báo một kiểu hợp đồng giao diện?", "abstract class", "static class", "class", "interface", "record struct", 3],
+    [3, 0, 104, "Phạm vi chứa trực tiếp khai báo trường private trong ví dụ một kiểu đơn giản là gì?", "Namespace", "Lớp", "Assembly", "Thể hiện", "Module", 1],
+    [3, 0, 106, "Khi một lớp có chỉ mục int và chỉ mục string, nó sử dụng khả năng nào?", "Dùng cú pháp [] khi gọi", "Có thể nạp chồng", "Có thể chỉ có get", "Có ít nhất một tham số", "Bắt buộc phải có cả get và set", 1],
+    [3, 0, 108, "Dòng nào gán hằng số vào trường thể hiện muc?", "this.muc = muc", "return this.muc", "muc = muc", "this.muc = 0", "muc = this.muc", 3],
+    [3, 0, 109, "Property public có get và set đều public cho phép thao tác nào từ bên ngoài?", "Đọc và ghi từ bên ngoài", "Đọc từ bên ngoài", "Gọi như một phương thức", "Ghi từ bên ngoài", "Chỉ truy cập nội bộ trong lớp", 0],
+    [3, 0, 110, "Cú pháp nào khai báo một lớp tĩnh?", "interface", "class", "static class", "abstract class", "record struct", 2],
+    [3, 0, 113, "Trong property Muc dùng get { return _muc; }, _muc thường là tên của thành phần nào?", "Tên biến thể hiện", "Tên tham số", "Tên kiểu", "Tên trường hỗ trợ", "Tên hằng số toàn cục", 3],
+    [3, 0, 114, "Theo quy ước tên trong bài giảng, tên nào thích hợp để đọc mức hiện tại?", "GetMuc()", "SetMuc(int muc)", "Dong()", "IsMo()", "KiemTra()", 0],
+    [3, 0, 118, "Trường private _muc giữ mức hiện tại thực hiện chức năng gì?", "Truy vấn", "Lưu trữ dữ liệu", "Kiểm tra dữ liệu", "Cập nhật", "Định dạng hiển thị", 1],
+    [3, 0, 120, "Trong bốn lựa chọn, phần đầu khai báo nào dùng cho lớp thường?", "class", "abstract class", "interface", "static class", "record struct", 0],
+    [3, 0, 123, "Một getter chỉ trả về _muc thực hiện chức năng gì?", "Kiểm tra dữ liệu", "Cập nhật", "Lưu trữ dữ liệu", "Truy vấn", "Định dạng hiển thị", 3],
+    [3, 0, 124, "Chỉ thị nào cho phép truy cập theo điều kiện protected hoặc internal?", "protected", "private", "internal", "protected internal", "public", 3],
+    [3, 0, 127, "Trong void CapNhat(int x), this.x dùng để chỉ gì?", "Giá trị đang gán qua set", "Một chỉ số int", "Trường x của đối tượng", "Tham số x", "Tên thuộc tính", 2],
+    [3, 0, 129, "Trong chỉ mục this[int i], i biểu thị gì?", "Một chỉ số int", "Giá trị đang gán qua set", "Tham số x", "Trường x của đối tượng", "Tên thuộc tính", 0],
+    [3, 0, 131, "Phần khai báo nào là đầu của một phương thức có tên riêng và nhận một số nguyên?", "this[string key]", "this[int i]", "Doc(int i)", "this[int i, int j]", "this[double x]", 2],
+    [3, 0, 132, "Trong b.DocMuc(), nếu b đã giữ một đối tượng BoDem thì b đứng trước dấu chấm với tư cách gì?", "Tên kiểu", "Tên biến thể hiện", "Tên tham số", "Tên trường hỗ trợ", "Tên hằng số toàn cục", 1],
+    [3, 0, 133, "Property public chỉ có get cho phép thao tác nào từ bên ngoài?", "Gọi như một phương thức", "Đọc từ bên ngoài", "Đọc và ghi từ bên ngoài", "Ghi từ bên ngoài", "Chỉ truy cập nội bộ trong lớp", 1],
+    [3, 0, 135, "Dấu hiệu cú pháp nào xuất hiện khi bên gọi truy cập chỉ mục?", "Có thể nạp chồng", "Có ít nhất một tham số", "Dùng cú pháp [] khi gọi", "Có thể chỉ có get", "Bắt buộc phải có cả get và set", 2],
+    [3, 0, 136, "Khi truyền int theo tham trị, giá trị được chuyển vào tham số thế nào?", "Bắt buộc gán tham số đầu ra", "Cho phép đọc và ghi biến của người gọi", "Tham chiếu đối tượng hiện tại", "Sao chép giá trị", "Bỏ qua hoàn toàn đối số truyền vào", 3],
+    [3, 0, 139, "Property public chỉ có set cho phép thao tác nào từ bên ngoài?", "Đọc từ bên ngoài", "Đọc và ghi từ bên ngoài", "Gọi như một phương thức", "Ghi từ bên ngoài", "Chỉ truy cập nội bộ trong lớp", 3],
+    [3, 0, 141, "Tên nào thể hiện hành động đóng trực tiếp theo tên gọi, không theo mẫu truy vấn hoặc cập nhật trong ba lựa chọn còn lại?", "Dong()", "SetMuc(int muc)", "IsMo()", "GetMuc()", "KiemTra()", 0],
+    [3, 0, 142, "Trong biểu thức this.X, this đại diện cho gì?", "Lớp", "Assembly", "Thể hiện", "Namespace", "Module", 2],
+    [3, 0, 143, "Phương thức khai báo out int có nghĩa vụ gì khi trả về bình thường?", "Cho phép đọc và ghi biến của người gọi", "Tham chiếu đối tượng hiện tại", "Bắt buộc gán tham số đầu ra", "Sao chép giá trị", "Bỏ qua hoàn toàn đối số truyền vào", 2],
+    [3, 0, 144, "Trong hàm trả về int, dòng nào trả về trường thể hiện muc?", "muc = muc", "this.muc = muc", "return this.muc", "this.muc = 0", "muc = this.muc", 2],
+    [3, 0, 145, "Điều kiện if (value >= 0) trong setter thực hiện chức năng gì?", "Truy vấn", "Lưu trữ dữ liệu", "Kiểm tra dữ liệu", "Cập nhật", "Định dạng hiển thị", 2],
+    [3, 0, 148, "Trong phương thức thể hiện, this biểu thị điều gì?", "Cho phép đọc và ghi biến của người gọi", "Sao chép giá trị", "Bắt buộc gán tham số đầu ra", "Tham chiếu đối tượng hiện tại", "Bỏ qua hoàn toàn đối số truyền vào", 3],
+    [3, 0, 149, "Ranh giới mà internal sử dụng gọi là gì?", "Thể hiện", "Lớp", "Namespace", "Assembly", "Module", 3],
+    [3, 0, 150, "Nếu Tang là phương thức thể hiện của BoDem, gọi nó trên b bằng cú pháp nào?", "BoDem.DocTong()", "b.Tang()", "BoDem.Tong", "b.Muc", "BoDem.Muc", 1],
+    [3, 0, 151, "Với phương thức truy vấn GetM() thay cho property, bên gọi dùng cách nào?", "Đọc và ghi từ bên ngoài", "Đọc từ bên ngoài", "Ghi từ bên ngoài", "Gọi như một phương thức", "Chỉ truy cập nội bộ trong lớp", 3],
+    [3, 0, 153, "Trong bốn lựa chọn, chỉ thị nào phù hợp nhất để giấu trường khỏi cả lớp dẫn xuất?", "protected", "internal", "protected internal", "private", "public", 3],
+    [3, 0, 156, "Phần khai báo nào phù hợp cho chỉ mục nhận một số nguyên?", "this[string key]", "this[int i]", "this[int i, int j]", "Doc(int i)", "this[double x]", 1],
+    [4, 0, 159, "Một lớp C# được khai báo tối đa bao nhiêu lớp cơ sở trực tiếp?", "Không có giới hạn cố định ở mức bài giảng", "Hai", "Không có", "Một", "Tối đa ba", 3],
+    [4, 0, 161, "Khai báo nào tạo lớp A kế thừa B?", "class A : B", "class B : A", "class B", "interface B : A", "class B extends A", 0],
+    [4, 0, 162, "Nếu chỉ viết class X : A và A không thực thi giao diện nào, X thực thi trực tiếp bao nhiêu giao diện?", "Không có giới hạn cố định ở mức bài giảng", "Không có", "Một", "Hai", "Tối đa ba", 1],
+    [4, 0, 163, "Nếu B dùng new M() che M() của A và biến b có kiểu B, b.M() chọn phiên bản nào?", "Chọn phiên bản cơ sở", "Cảnh báo che khuất", "Lỗi không truy cập được", "Chọn phiên bản dẫn xuất", "Tự động hủy bỏ phương thức cũ", 3],
+    [4, 0, 168, "Nếu B khai báo M cùng chữ ký M không ảo của A mà bỏ new, trình biên dịch thường đưa ra điều gì?", "Cảnh báo che khuất", "Chọn phiên bản dẫn xuất", "Chọn phiên bản cơ sở", "Lỗi không truy cập được", "Tự động hủy bỏ phương thức cũ", 0],
+    [4, 0, 170, "Khai báo class X : A, I, J với A là lớp và I, J là giao diện thực thi bao nhiêu giao diện trực tiếp?", "Không có", "Hai", "Không có giới hạn cố định ở mức bài giảng", "Một", "Tối đa ba", 1],
+    [4, 0, 171, "Trong public int Id;, Id thuộc loại thành viên nào mà B có thể truy cập?", "Constructor thể hiện", "Trường public", "Phương thức public", "Finalizer", "Hàm tĩnh private", 1],
+    [4, 0, 173, "Trong B, base.M() gọi phiên bản nào nếu A khai báo M và là lớp cơ sở trực tiếp?", "Chọn phiên bản dẫn xuất", "Lỗi không truy cập được", "Cảnh báo che khuất", "Chọn phiên bản cơ sở", "Tự động hủy bỏ phương thức cũ", 3],
+    [4, 0, 176, "Nhận định nào đúng về số giao diện khác nhau mà một lớp có thể liệt kê theo quy tắc kế thừa của bài giảng?", "Không có", "Không có giới hạn cố định ở mức bài giảng", "Hai", "Một", "Tối đa ba", 1],
+    [4, 0, 177, "Giả sử A là giao diện, khai báo nào tạo giao diện B kế thừa A?", "class A : B", "class B", "class B : A", "interface B : A", "class B extends A", 3],
+    [4, 0, 179, "Thành viên nào có dạng ~A() và không thể gọi trực tiếp từ B?", "Trường public", "Constructor thể hiện", "Finalizer", "Phương thức public", "Hàm tĩnh private", 2],
+    [4, 0, 182, "Với B b đã giữ đối tượng, khi chạy A a = b; điều gì xảy ra với đối tượng ban đầu?", "Thay đổi kiểu thực", "Tạo bản sao", "Giữ nguyên đối tượng", "Tạo đối tượng lớp cơ sở mới", "Cấp phát lại toàn bộ đối tượng", 2],
+    [4, 0, 191, "Thành viên nào có thể được B gọi qua : base(...) nhưng phải được khai báo như một constructor riêng nếu B cần cùng chữ ký?", "Constructor thể hiện", "Finalizer", "Phương thức public", "Trường public", "Hàm tĩnh private", 0],
+    [4, 0, 193, "Trong public void HienThi() { }, HienThi thuộc loại thành viên nào mà B có thể gọi?", "Phương thức public", "Trường public", "Constructor thể hiện", "Finalizer", "Hàm tĩnh private", 0],
+    [4, 0, 198, "Khai báo nào tạo lớp B mà không nêu lớp cơ sở tường minh?", "class A : B", "class B", "interface B : A", "class B : A", "class B extends A", 1],
+    [4, 0, 201, "Trong lớp dẫn xuất bình thường, cố đọc trực tiếp trường private của lớp cơ sở dẫn đến điều gì?", "Chọn phiên bản cơ sở", "Chọn phiên bản dẫn xuất", "Cảnh báo che khuất", "Lỗi không truy cập được", "Tự động hủy bỏ phương thức cũ", 3],
+    [4, 0, 203, "Cụm từ nào mô tả một hiểu nhầm về tác dụng của phép gán tham chiếu sang biến lớp cơ sở?", "Tạo đối tượng lớp cơ sở mới", "Giữ nguyên đối tượng", "Thay đổi kiểu thực", "Tạo bản sao", "Cấp phát lại toàn bộ đối tượng", 2],
+    [4, 0, 204, "Trong A a = new A();, biểu thức bên phải thực hiện gì?", "Tạo đối tượng lớp cơ sở mới", "Tạo bản sao", "Thay đổi kiểu thực", "Giữ nguyên đối tượng", "Cấp phát lại toàn bộ đối tượng", 0],
+    [4, 0, 214, "Thao tác nào được mô tả bởi cụm từ sao chép đối tượng sang một thể hiện khác?", "Giữ nguyên đối tượng", "Tạo đối tượng lớp cơ sở mới", "Tạo bản sao", "Thay đổi kiểu thực", "Cấp phát lại toàn bộ đối tượng", 2],
+    [4, 0, 215, "Khai báo nào tạo lớp B kế thừa A?", "class B", "interface B : A", "class A : B", "class B : A", "class B extends A", 3],
+    [5, 0, 217, "Giả sử C thực thi I.M. Sau I a = new C();, a.M() thuộc trường hợp nào?", "Lỗi tạo thể hiện", "Khai báo hợp đồng", "Khai báo biến hợp lệ", "Lời gọi hợp lệ và có cài đặt", "Ép kiểu không an toàn", 3],
+    [5, 0, 218, "Trong A a = new B(); với B : A, A giữ vai trò nào trong quan hệ kế thừa?", "Biến tham chiếu", "Lớp cơ sở", "Phiên bản ghi đè", "Lớp dẫn xuất", "Đối tượng hằng số", 1],
+    [5, 0, 222, "Tên nào theo quy ước đặt tên giao diện trong bài giảng?", "static class TruyenTin", "ITruyenTin", "abstract class TruyenTin", "TruyenTin", "class TruyenTin : ITruyenTin", 1],
+    [5, 0, 226, "Nếu B có override M(), thân B.M() đóng vai trò gì?", "Lớp dẫn xuất", "Phiên bản ghi đè", "Biến tham chiếu", "Lớp cơ sở", "Đối tượng hằng số", 1],
+    [5, 0, 228, "Lớp tiện ích chuẩn nào chứa các hàm như Sqrt và Pow?", "System.Type", "System.Math", "System.String", "System.Object", "System.Console", 1],
+    [5, 0, 229, "Thành viên nào cung cấp thông tin kiểu của thể hiện hiện tại?", "Finalize()", "ToString()", "MemberwiseClone()", "GetType()", "GetHashCode()", 3],
+    [5, 0, 230, "Lớp thường đã cung cấp đủ bản cài đặt cần thiết để tạo đối tượng được gọi là gì?", "Phương thức ảo có thân", "Lớp triển khai cụ thể", "Hợp đồng giao diện", "Lớp trừu tượng trung gian", "Phương thức tĩnh không thể override", 1],
+    [5, 0, 232, "Câu lệnh new I() khi I là interface thuộc trường hợp nào?", "Lỗi tạo thể hiện", "Khai báo hợp đồng", "Lời gọi hợp lệ và có cài đặt", "Khai báo biến hợp lệ", "Ép kiểu không an toàn", 0],
+    [5, 0, 234, "Trong thân phương thức, dòng I a; khi I là interface thuộc trường hợp nào?", "Lời gọi hợp lệ và có cài đặt", "Khai báo hợp đồng", "Lỗi tạo thể hiện", "Khai báo biến hợp lệ", "Ép kiểu không an toàn", 3],
+    [5, 0, 236, "Kiểu nào là kiểu trả về của GetType() trên một đối tượng?", "System.Math", "System.Type", "System.String", "System.Object", "System.Console", 1],
+    [5, 0, 238, "Mức truy cập nào dùng để cho phép lớp con gọi một phương thức của lớp trừu tượng theo quan hệ dẫn xuất?", "protected", "private", "internal", "public", "protected internal", 0],
+    [5, 0, 239, "Khai báo nào tạo lớp thường A?", "interface A", "abstract class A", "class A", "static class A", "struct A", 2],
+    [5, 0, 244, "Dòng void M(); trong thân interface cổ điển thuộc trường hợp nào?", "Khai báo hợp đồng", "Khai báo biến hợp lệ", "Lời gọi hợp lệ và có cài đặt", "Lỗi tạo thể hiện", "Ép kiểu không an toàn", 0],
+    [5, 0, 245, "Trong mô hình bài giảng, giao diện dùng chủ yếu để mô tả điều gì?", "Hợp đồng hành vi", "Trạng thái dùng chung của lớp cơ sở", "Phiên bản mặc định", "Thể hiện cụ thể", "Cơ chế giải phóng bộ nhớ tự động", 0],
+    [5, 0, 247, "Khai báo nào tạo lớp trừu tượng A?", "interface A", "class A", "static class A", "abstract class A", "struct A", 3],
+    [5, 0, 249, "Trong mô hình giao diện cổ điển, thành viên hợp đồng void M(); mặc định có mức truy cập nào?", "public", "private", "internal", "protected", "protected internal", 0],
+    [5, 0, 250, "Khai báo nào tạo giao diện A?", "abstract class A", "interface A", "static class A", "class A", "struct A", 1],
+    [5, 0, 251, "Trong public void Gui() { }, public mô tả yếu tố nào?", "Quyền truy cập", "Chữ ký phương thức", "Thân phương thức", "Tên giao diện", "Kiểu trả về", 0],
+    [5, 0, 252, "Mức truy cập nào phù hợp nhất cho phương thức trợ giúp chỉ dùng trong lớp khai báo?", "internal", "private", "protected", "public", "protected internal", 1],
+    [5, 0, 253, "Trong interface IThongBao { }, IThongBao giữ vai trò gì?", "Thân phương thức", "Tên giao diện", "Quyền truy cập", "Chữ ký phương thức", "Kiểu trả về", 1],
+    [5, 0, 254, "Khai báo nào cho phép lớp TruyenTin định nghĩa một khung chung mà không tạo trực tiếp đối tượng?", "ITruyenTin", "TruyenTin", "abstract class TruyenTin", "static class TruyenTin", "class TruyenTin : ITruyenTin", 2],
+    [5, 0, 255, "Một giao diện có thể liệt kê những kiểu nào ở danh sách kế thừa?", "Nhiều giao diện", "Chỉ một lớp", "Một lớp và nhiều giao diện", "Không thể dùng tên lớp ở vế new", "Nhiều lớp và một giao diện", 0],
+    [5, 0, 256, "Tên nào phù hợp cho một lớp thường triển khai việc truyền tin?", "abstract class TruyenTin", "TruyenTin", "static class TruyenTin", "ITruyenTin", "class TruyenTin : ITruyenTin", 1],
+    [5, 0, 257, "Với lớp A trừu tượng, phát biểu nào đúng về new A()?", "Chỉ một lớp", "Không thể dùng tên lớp ở vế new", "Một lớp và nhiều giao diện", "Nhiều giao diện", "Nhiều lớp và một giao diện", 1],
+    [5, 0, 259, "Kiểu nào nằm ở gốc phân cấp các lớp C#?", "System.Type", "System.Object", "System.String", "System.Math", "System.Console", 1],
+    [5, 0, 264, "Trường thể hiện khai báo trong lớp trừu tượng có thể biểu diễn phần gì cho các lớp dẫn xuất?", "Trạng thái dùng chung của lớp cơ sở", "Phiên bản mặc định", "Hợp đồng hành vi", "Thể hiện cụ thể", "Cơ chế giải phóng bộ nhớ tự động", 0],
+    [5, 0, 267, "Một lớp trừu tượng có thể nêu tối đa những loại kiểu cơ sở nào?", "Không thể dùng tên lớp ở vế new", "Nhiều giao diện", "Một lớp và nhiều giao diện", "Chỉ một lớp", "Nhiều lớp và một giao diện", 2],
+    [5, 0, 269, "Trong lớp cơ sở, public virtual void M() { } là dạng thành viên nào?", "Lớp triển khai cụ thể", "Lớp trừu tượng trung gian", "Hợp đồng giao diện", "Phương thức ảo có thân", "Phương thức tĩnh không thể override", 3],
+    [5, 0, 272, "Trong cùng khai báo, B giữ vai trò nào trong quan hệ kế thừa?", "Phiên bản ghi đè", "Biến tham chiếu", "Lớp cơ sở", "Lớp dẫn xuất", "Đối tượng hằng số", 3],
+    [5, 0, 273, "Đối tượng tạo bằng new trên một lớp thực thi giao diện là gì?", "Hợp đồng hành vi", "Phiên bản mặc định", "Thể hiện cụ thể", "Trạng thái dùng chung của lớp cơ sở", "Cơ chế giải phóng bộ nhớ tự động", 2],
+    [5, 0, 275, "Thành viên nào gắn với cơ chế finalization?", "ToString()", "GetType()", "Finalize()", "MemberwiseClone()", "GetHashCode()", 2],
+    [5, 0, 280, "C# cho phép một lớp kế thừa trực tiếp bao nhiêu kiểu thuộc loại lớp?", "Một lớp và nhiều giao diện", "Không thể dùng tên lớp ở vế new", "Chỉ một lớp", "Nhiều giao diện", "Nhiều lớp và một giao diện", 2],
+    [5, 0, 282, "Trong lớp thực thi, khối { } của Gui dùng để chứa gì?", "Chữ ký phương thức", "Tên giao diện", "Thân phương thức", "Quyền truy cập", "Kiểu trả về", 2],
+    [5, 0, 283, "Trong interface I { void Gui(); }, void Gui(); cung cấp phần nào của hợp đồng?", "Quyền truy cập", "Tên giao diện", "Chữ ký phương thức", "Thân phương thức", "Kiểu trả về", 2],
+    [5, 0, 284, "Mức truy cập nào dành cho mã cùng assembly kể cả khi không kế thừa?", "internal", "private", "public", "protected", "protected internal", 0],
+    [5, 0, 285, "Trong cùng khai báo, a đóng vai trò gì?", "Lớp dẫn xuất", "Phiên bản ghi đè", "Biến tham chiếu", "Lớp cơ sở", "Đối tượng hằng số", 2],
+    [5, 0, 291, "Tên đầy đủ của kiểu string là gì?", "System.Object", "System.Math", "System.String", "System.Type", "System.Console", 2],
+    [5, 0, 292, "Khai báo nào tạo lớp tiện ích tĩnh A?", "interface A", "abstract class A", "class A", "static class A", "struct A", 3],
+    [5, 0, 293, "Khai báo nào phù hợp cho một lớp TruyenTin chỉ chứa các hàm tiện ích tĩnh?", "TruyenTin", "abstract class TruyenTin", "ITruyenTin", "static class TruyenTin", "class TruyenTin : ITruyenTin", 3],
+    [5, 0, 295, "Thân phương thức virtual ở lớp cơ sở cung cấp điều gì trước khi có override?", "Hợp đồng hành vi", "Trạng thái dùng chung của lớp cơ sở", "Thể hiện cụ thể", "Phiên bản mặc định", "Cơ chế giải phóng bộ nhớ tự động", 3],
+    [5, 0, 297, "Thành viên nào thường được ghi đè để trình bày nội dung đối tượng dưới dạng văn bản?", "Finalize()", "MemberwiseClone()", "ToString()", "GetType()", "GetHashCode()", 2],
+    [5, 0, 298, "Một lớp nằm giữa lớp cơ sở và lớp cụ thể, vẫn được đánh dấu abstract, thuộc vai trò nào?", "Hợp đồng giao diện", "Phương thức ảo có thân", "Lớp trừu tượng trung gian", "Lớp triển khai cụ thể", "Phương thức tĩnh không thể override", 2],
+    [5, 0, 299, "Trong interface I { void M(); }, lời khai báo M() đại diện cho điều gì?", "Hợp đồng giao diện", "Lớp trừu tượng trung gian", "Phương thức ảo có thân", "Lớp triển khai cụ thể", "Phương thức tĩnh không thể override", 0],
+    [5, 0, 300, "Thành viên nào của object tạo bản sao nông?", "Finalize()", "ToString()", "GetType()", "MemberwiseClone()", "GetHashCode()", 3]
   ];
 
   // 60 đoạn mã C# dùng cho 300 câu đọc mã (201..500)
@@ -2780,8 +2790,8 @@
     if (seenSig.has(sig)) {
       throw new Error("Trùng câu hỏi trong kho (" + contextLabel + "): " + q.title);
     }
-    if (!Array.isArray(q.options) || q.options.length < 4 || q.options.length > 5 ||
-        new Set(q.options).size !== q.options.length) {
+    if (!Array.isArray(q.options) || q.options.length !== 5 ||
+        new Set(q.options).size !== 5) {
       throw new Error("Đáp án không hợp lệ ở " + contextLabel + ": " + q.title);
     }
     seenSig.add(sig);
@@ -2809,13 +2819,13 @@
       }
     }
 
-    // 2. 140 câu Dễ chọn lọc không trùng lặp từ kho lý thuyết trước
+    // 2. 140 câu Dễ chọn lọc không trùng lặp từ kho lý thuyết trước (5 lựa chọn A..E)
     for (var ti = 0; ti < THEORY_EASY_140.length; ti++) {
       var row = THEORY_EASY_140[ti];
       var qCh = row[0];
       var qNum = row[2];
-      var qOpts = [row[4], row[5], row[6], row[7]];
-      var qAns = row[8];
+      var qOpts = [row[4], row[5], row[6], row[7], row[8]];
+      var qAns = row[9];
       var correctText = qOpts[qAns];
       registerBankQuestion(bank, seenSig, countByDiff, {
         type: "mcq",
